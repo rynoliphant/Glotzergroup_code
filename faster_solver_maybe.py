@@ -370,6 +370,8 @@ def get_edge_face_neighbors (shape):
 bc_start = time.time()
 
 for s,x in enumerate(shape_pos):
+    #TODO: normalize all constraints so that they are unit vectors!!!
+
     shp = shapes[s]
 
     shp_faces = shp.normals
@@ -388,10 +390,10 @@ for s,x in enumerate(shape_pos):
     new_edge_constraint = np.zeros((len(shp_edges), 4, 3))
     new_edge_bounds = np.zeros((len(shp_edges), 4))
 
-    edge_constraint_col_1 = shp_edges
-    edge_constraint_col_2 = -1*shp_edges
-    edge_constraint_col_3 = np.cross(shp_edges, shp_faces[shp_edge_face[:,1]])
-    edge_constraint_col_4 = -1*np.cross(shp_edges, shp_faces[shp_edge_face[:,0]])
+    edge_constraint_col_1 = -1*shp_edges
+    edge_constraint_col_2 = shp_edges
+    edge_constraint_col_3 = -1*np.cross(shp_edges, shp_faces[shp_edge_face[:,1]])
+    edge_constraint_col_4 = np.cross(shp_edges, shp_faces[shp_edge_face[:,0]])
 
     new_edge_constraint[:,0] = edge_constraint_col_1
     new_edge_constraint[:,1] = edge_constraint_col_2
@@ -413,8 +415,52 @@ for s,x in enumerate(shape_pos):
     new_edge_bounds[:,2] = edge_bounds_3
     new_edge_bounds[:,3] = edge_bounds_4
 
-    print(new_edge_constraint.dot(np.array([2,2.5,2.5])) <= new_edge_bounds)
-    #constraint matrix normals are pointing outwards, so use upper bounds
+    print(new_edge_constraint.dot(np.array([2,3,3])) >= new_edge_bounds)
+    #constraint matrix normals are pointing inwards, so use lower bounds
+
+
+    #----- Building the Face Sections (Constraints & Boundary Conditions) -----
+    #TODO: add np.pad so that it works for shapes with faces of varying number of edges
+    face_constraint = []
+    face_bounds = []
+    for face_i, face in enumerate(shp_faces):
+        edge_face_bool = shp_edge_face == face_i
+        bool_0 = edge_face_bool[:,0]
+        bool_1 = edge_face_bool[:,1]
+
+        pos_con = np.cross(shp_edges[edge_face_bool[:,1]], face)
+        neg_con = -1*np.cross(shp_edges[edge_face_bool[:,0]], face)
+
+        # print(face.reshape((1,3)).shape)
+        # print(neg_con.shape)
+        # print(pos_con.shape)
+        face_constr = np.concatenate((
+            face.reshape((1,3)),
+            neg_con,
+            pos_con
+        ), axis=0)
+
+        face_vert_pos = shp_vert[shp_edge_vert[bool_1][:,1]] + x
+        face_vert_neg = shp_vert[shp_edge_vert[bool_0][:,0]] + x
+
+
+        neg_bound = np.sum(neg_con * face_vert_neg, axis=1)
+        pos_bound = np.sum(pos_con * face_vert_pos, axis=1)
+
+        face_bound = np.hstack((
+            np.array(0.5 + face.dot(x)),
+            np.sum(neg_con * face_vert_neg, axis=1),
+            np.sum(pos_con * face_vert_pos, axis=1)
+        ))
+
+        #trying point (2,2,3)
+        # print(face_constr.dot(np.array([2,2,3])) >= face_bound)
+        face_constraint.append(face_constr)
+        face_bounds.append(face_bound)
+
+    face_constraint = np.asarray(face_constraint)
+    face_bounds = np.asarray(face_bounds)
+    print(face_constraint.dot(np.array([2,3,3])) >= face_bounds)
 
     # make_edges = shp_vert[shp_edge_vert[:,1]] - shp_vert[shp_edge_vert[:,0]]
     
