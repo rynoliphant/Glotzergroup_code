@@ -11,16 +11,16 @@ arr = np.array([
     [3,5,7]
 ])
 tile = np.tile(arr, (3,1))
-print(tile)
+# print(tile)
 repeat = np.repeat(arr, 3, axis=0)
-print(repeat)
-print(ak.sum(ak.Array(arr * ak.Array([1,2,2])), axis=1, highlevel=False))
+# print(repeat)
+# print(ak.sum(ak.Array(arr * ak.Array([1,2,2])), axis=1, highlevel=False))
 variable = ak.to_list(ak.sum(arr * np.array([1,2,2]), axis=1))
-print(variable)
+# print(variable)
 variable_ak = ak.Array([variable])
-print(variable_ak)
-print(ak.to_numpy(variable_ak))
-print(ak.Array([2, 3.521987, 94.19348]))
+# print(variable_ak)
+# print(ak.to_numpy(variable_ak))
+# print(ak.Array([2, 3.521987, 94.19348]))
 
 test = ak.Array([
     [[1,2,3], [4,5,6],[7,8,9]],
@@ -29,18 +29,18 @@ test = ak.Array([
 ])
 
 test_broadcast = ak.broadcast_fields(np.array([2,2.5672,9.2538]), test)
-print(test_broadcast)
+# print(test_broadcast)
 test0 = test*ak.Array([2,2.5672,9.2538])
-print(test0[0])
+# print(test0[0])
 test_bool = test == ak.Array([1,2,3])
-print(test[test_bool])
+# print(test[test_bool])
 
 up_test = ak.Array([
     [15, 30, 42],
     [37],
     [30, 28]
 ])
-print(test0 <= up_test)
+# print(test0 <= up_test)
 
 con_col1 = ak.Array([
     [[1,2,3]],
@@ -64,9 +64,9 @@ con_counts = ak.num(con_mat, axis=2)
 con_counts = ak.flatten(con_counts[con_counts != 0])
 con_mat = ak.flatten(con_mat, axis=2)
 con_mat = ak.unflatten(con_mat, con_counts, axis=1)
-print(con_mat[0])
-print(con_mat[1])
-print(con_mat[2])
+# print(con_mat[0])
+# print(con_mat[1])
+# print(con_mat[2])
 
 none_ak = ak.Array([
     [[], [], []]
@@ -77,7 +77,7 @@ none_counts = ak.flatten(none_counts[none_counts != 0])
 
 none_ak = ak.flatten(none_ak, axis=2)
 none_ak = ak.unflatten(none_ak, none_counts, axis=1)
-print(none_ak)
+# print(none_ak)
 
 #
 
@@ -454,7 +454,7 @@ for s,x in enumerate(shape_pos):
     shp_vert = shp.vertices
     shp_edges = shp.edge_vectors
 
-    shp_edge_vert = shp.edges
+    shp_edge_vert = shp.edges #column [0]: o-->  | column [1]: o<--
     shp_edge_face = get_edge_face_neighbors(shp)
 
     # faces = np.asarray(shp.faces)
@@ -508,14 +508,13 @@ for s,x in enumerate(shape_pos):
     # print('face inds',faces_inds)
 
     # print('ef bool',efneighbors0 == faces_inds)
-    efbool0 = ak.from_numpy(efneighbors0 == faces_inds) #Making a bool to find the edges that are next to each face
-    efbool1 = ak.from_numpy(efneighbors1 == faces_inds) #^---
-    ak_tile_edges = ak.from_numpy(nfaces_tile_edges) 
+    efbool0 = efneighbors0 == faces_inds #Making a bool to find the edges that are next to each face
+    efbool1 = efneighbors1 == faces_inds #^---
     # print('corresponding edges', ak.mask(ak_tile_edges, efbool0))
     # print('length', len(ak.mask(ak_tile_edges, efbool0)))
 
-    ak_edges_mask0 = ak.to_numpy(ak.mask(ak_tile_edges, efbool0)) #Applying the bool: efbool0 to ak_tile_edges, but returning Nones for False instead of removing them
-    ak_edges_mask1 = ak.to_numpy(ak.mask(ak_tile_edges, efbool1))#^---
+    ak_edges_mask0 = ak.to_numpy(ak.mask(nfaces_tile_edges, efbool0)) #Applying the bool: efbool0 to ak_tile_edges, but returning Nones for False instead of removing them
+    ak_edges_mask1 = ak.to_numpy(ak.mask(nfaces_tile_edges, efbool1))#^---
     faces_repeat = np.repeat(shp_faces, n_edges, axis=0).reshape((n_faces, n_edges, 3)) 
 
     neg_constraints = ak.from_numpy(-1*np.cross(ak_edges_mask0, faces_repeat)) #Doing the cross product of the edges to the faces
@@ -613,7 +612,49 @@ for s,x in enumerate(shape_pos):
     
 
     #----- Building the Vertice Sections (Constraint & Boundary Conditions) -----
-    #TODO: make it more general
+    #tiling for set up
+    n_verts = shp.num_vertices
+    nverts_edge_vert0 = np.tile(shp_edge_vert[:,0], (n_verts, 1))
+    nverts_edge_vert1 = np.tile(shp_edge_vert[:,1], (n_verts, 1))
+    vert_inds = np.arange(0, n_verts, 1).reshape((n_verts, 1))
+    nverts_tile_edges = np.tile(shp_edges, (n_verts, 1)).reshape((n_verts, n_edges, 3))
+
+    #creating the bools need to get the edges that correspond to each vertice
+    evbool0 = nverts_edge_vert0 == vert_inds
+    evbool1 = nverts_edge_vert1 == vert_inds
+
+    #Finding the edge vectors that correspond to each vertice using the bools previously created
+    ak_vert_mask0 = ak.mask(nverts_tile_edges, evbool0)
+    ak_vert_mask1 = ak.mask(nverts_tile_edges, evbool1)
+
+    #removing the None values from the ak arrays
+    ak_vert_neg = ak.drop_none(ak_vert_mask0) * (-1)
+    ak_vert_pos = ak.drop_none(ak_vert_mask1)
+
+    #concatenating the ak arrays together to make the vertice constraint array | shape:(n_vert, #, 3)
+    vert_constraint = ak.concatenate((ak_vert_neg, ak_vert_pos), axis=1)
+    
+    #Building the boundary conditions
+    evbool_tot = evbool0 + evbool1
+    # print(shp_vert.shape)
+    nedges_repeat_verts = np.repeat((shp_vert+x).reshape(n_verts,1,3), n_edges, axis=1)
+    # print(nedges_repeat_verts[0])
+    # print(shp_vert+x)
+    # print(nedges_repeat_verts.shape)
+    dot_verts = ak.drop_none(ak.mask(nedges_repeat_verts, evbool_tot))
+    # print(dot_verts[0])
+    # print(vert_constraint[0])
+
+    vert_bounds = ak.sum(vert_constraint * dot_verts, axis=2)
+    # print(vert_bounds[0])
+
+    vert_constraint_np = ak.to_numpy(vert_constraint)
+    vert_bounds_np = ak.to_numpy(vert_bounds)
+
+    print(shp_vert[0] + x)
+    print(vert_constraint_np[0])
+    print(np.sum(vert_constraint_np * np.array([3,3,3]), axis=1) >= vert_bounds_np)
+
 
 
     # make_edges = shp_vert[shp_edge_vert[:,1]] - shp_vert[shp_edge_vert[:,0]]
