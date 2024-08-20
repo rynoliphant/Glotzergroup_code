@@ -21,7 +21,7 @@ img_arr = np.array([
 neg_one_list = [[2,3],[0,2],[1,4,6]]
 neg_one_list[0].insert(5, neg_one_list[0][0])
 # neg_one_list[:][-1:] = -1
-print('Hello:',neg_one_list)
+# print('Hello:',neg_one_list)
 
 # print(big_arr * img_arr)
 
@@ -58,13 +58,13 @@ test_bool = test == ak.Array([1,2,3])
 # print(test_np)
 # print(test_np + np.array([1,3,4.5]))
 test_num = ak.num(test, axis=1)
-print(test_num)
-test_num_tot = ak.sum(test_num)
-test_vect_diff = np.tile(np.array([[1,1,0],[0,2,-1]]).reshape(2,1,3), (1, test_num_tot, 1))
-print(test_vect_diff)
-test_unflatten = ak.unflatten(test_vect_diff, ak.flatten(ak.Array([test_num, test_num])), axis=1)
-big_test = ak.Array([test, test])
-print(ak.sum(big_test * test_unflatten, axis=3))
+# print(test_num)
+# test_num_tot = ak.sum(test_num)
+# test_vect_diff = np.tile(np.array([[1,1,0],[0,2,-1]]).reshape(2,1,3), (1, test_num_tot, 1))
+# print(test_vect_diff)
+# test_unflatten = ak.unflatten(test_vect_diff, ak.flatten(ak.Array([test_num, test_num])), axis=1)
+# big_test = ak.Array([test, test])
+# print(ak.sum(big_test * test_unflatten, axis=3))
 # print(test[test_bool])
 
 up_test = ak.Array([
@@ -142,10 +142,10 @@ for ijk in ijk_list:
 
 end = time.time()
 
-print('First time:', middle-start)
-print('Second time:', end-middle)
+# print('First time:', middle-start)
+# print('Second time:', end-middle)
 
-print('Difference in time:', (middle-start)/(end-middle))
+# print('Difference in time:', (middle-start)/(end-middle))
 
 def distance_point_point (pt1, pt2):
     v = pt2 - pt1
@@ -179,6 +179,52 @@ points1 = np.array([
     [1,0,1],
     [0,1,1],
     [1,1,1],
+    [2,0,0],
+    [0,2,0],
+    [0,0,2],
+    [2,2,0],
+    [2,0,2],
+    [0,2,2],
+    [2,1,1],
+    [1,2,1],
+    [1,1,2],
+    [2,2,1],
+    [2,1,2],
+    [1,2,2],
+    [2,2,2],
+    [3,1,1],
+    [1,3,1],
+    [1,1,3],
+    [3,3,1],
+    [3,1,3],
+    [1,3,3],
+    [3,2,2],
+    [3,3,2],
+    [3,3,3],
+    [4,3,3],
+    [4,4,3],
+    [4,4,4],
+    [5,4,4],
+    [5,5,4],
+    [5,5,5],
+    [6,5,5],
+    [6,6,5],
+    [6,6,6],
+
+    [0,0,0],
+    [1,0,0],
+    [0,1,0],
+    [0,0,1],
+    [1,1,0],
+    [1,0,1],
+    [0,1,1],
+    [1,1,1],
+    [2,0,0],
+    [0,2,0],
+    [0,0,2],
+    [2,2,0],
+    [2,0,2],
+    [0,2,2],
     [2,1,1],
     [1,2,1],
     [1,1,2],
@@ -493,7 +539,7 @@ def get_edge_face_neighbors (shape):
     ef_neighbor0 = np.sum(new_face_corr_inds*new_edge_ind_bool0, axis=0).reshape(num_edges, 1)
     ef_neighbor1 = np.sum(new_face_corr_inds*new_edge_ind_bool1, axis=0).reshape(num_edges, 1)
     ef_neighbor = np.hstack((ef_neighbor0, ef_neighbor1))
-    print('new', ef_neighbor)
+    
 
 
 
@@ -554,7 +600,12 @@ def bounds_for_images (bounds, constraint):
     new_bounds = big_bounds + (np.sum(big_constraint * image_diff, axis=3))
     return new_bounds
 
-def point_to_edge_distance (point, vert, edge_vector):
+def point_to_edge_distance (point, vert, edge_vector, multiple=False):
+    if multiple:
+        edge_units = edge_vector / LA.norm(edge_vector, axis=1).reshape(len(edge_vector), 1)
+        dist = LA.norm(((vert - point) - (np.sum((vert-point)*edge_units, axis=1).reshape(len(edge_vector),1) *edge_units)), axis=1)
+        return dist
+    
     edge_vect_mag = LA.norm(edge_vector)
     if edge_vect_mag == 0:
         return
@@ -562,7 +613,13 @@ def point_to_edge_distance (point, vert, edge_vector):
     dist = LA.norm((vert - point) - ((vert - point).dot(edge_unit)*edge_unit))
     return dist
 
-def point_to_face_distance(point, vert, face_normal):
+def point_to_face_distance(point, vert, face_normal, multiple=False):
+    if multiple:
+        vert_point_vect = -1*vert + point
+        face_unit = face_normal / LA.norm(face_normal, axis=1).reshape(len(face_normal), 1)
+        dist = np.sum(vert_point_vect*face_unit, axis=1)
+        return dist
+    
     vert_point_vect = point - vert
     face_unit = face_normal / LA.norm(face_normal)
     dist = vert_point_vect.dot(face_unit)
@@ -834,50 +891,87 @@ for s,x in enumerate(shape_pos):
     images_pos = (x+np.array([6,0,0]), x, x+np.array([-6,0,0]))
     face_centroids = shp.face_centroids
     centroid = shp.centroid
-    bc_r = []
+    img_verts = np.tile(shp_vert.reshape(1, n_verts,3), (3,1,1))
+    img_edges = np.tile(shp_edges.reshape(1, n_edges,3), (3,1,1))
+    img_faces = np.tile(shp_faces.reshape(1, n_faces,3), (3,1,1))
+    img_ev_neighbors = np.tile(shp_edge_vert.reshape(1, n_edges, 2), (3,1,1))
+    # img_ef_neighbors = np.tile(shp_edge_face.reshape(1, n_edges, 2), (3,1,1))
+    img_face_centroids = np.tile(face_centroids.reshape(1,n_faces,3), (3,1,1))
+    bc_r = np.array([])
     for coord_i in range(len(points1)):
 
-        dist_images_list = np.sqrt(np.sum((images_pos - points1[coord_i])**2, axis=1))
-        con_ind = np.argmin(dist_images_list)
+        #Building code to do more than one image at once
         coord = points1[coord_i]
+        min_dist_list = np.array([])
 
-        #Check if point is in the vertice sections
-        # vert_num = ak.num(vert_bounds, axis=1)
-        # vert_num_tot = ak.sum(vert_num)
-        # coord_tile_vert = np.tile(coord, (vert_num_tot, 1))
-        # coord_vert = ak.unflatten(coord_tile_vert, vert_num, axis=0)
-
-        # vert_bool = ak.to_numpy(ak.sum(ak.sum(vert_constraint*coord_vert, axis=2) >= img_vert_bounds[con_ind], axis=1) == vert_num)
-        min_dist = -1
-
-        vert_bool = np.all(vert_constraint.dot(coord) >= img_vert_bounds[con_ind], axis=1)
+        vert_bool = np.all(img_vert_bounds <= vert_constraint.dot(coord), axis=2)
         if np.any(vert_bool):
-            min_dist = LA.norm(coord - (shp_vert[vert_bool]+x+image_diff[con_ind]))
-            bc_r.append(min_dist)
-            continue
+            vert_bool_img = np.any(vert_bool, axis=1)
+            min_dist = LA.norm(-1*(img_verts[vert_bool] + image_diff[vert_bool_img] + x) + coord, axis=1)
+            min_dist_list = np.append(min_dist_list, min_dist)
 
-        edge_bool = np.all(new_edge_constraint.dot(coord) >= img_edge_bounds[con_ind], axis=1)
+        edge_bool = np.all(img_edge_bounds <= new_edge_constraint.dot(coord), axis=2)
         if np.any(edge_bool):
-            vert_on_edge = shp_vert[shp_edge_vert[edge_bool][0,0]] + x + image_diff[con_ind]
-            min_dist = point_to_edge_distance(coord, vert_on_edge, shp_edges[edge_bool][0])
-            bc_r.append(min_dist)
-            continue
+            edge_bool_img = np.any(edge_bool, axis=1)
+            vert_on_edge = shp_vert[img_ev_neighbors[edge_bool][:,0]] + x + image_diff[edge_bool_img]
+            min_dist = point_to_edge_distance(coord, vert_on_edge, img_edges[edge_bool], multiple=True)
+            min_dist_list = np.append(min_dist_list, min_dist)
 
-        face_bool = np.all(new_face_constraints.dot(coord) >= img_face_bounds[con_ind], axis=1)
+        face_bool = np.all(img_face_bounds <= new_face_constraints.dot(coord), axis=2)
         if np.any(face_bool):
-            vert_on_face = (face_centroids[face_bool] + x + image_diff[con_ind] + centroid)[0]
-            min_dist = point_to_face_distance(coord, vert_on_face, shp_faces[face_bool][0])
-            bc_r.append(min_dist)
-            continue
+            face_bool_img = np.any(face_bool, axis=1)
+            vert_on_face = img_face_centroids[face_bool] + x + image_diff[face_bool_img] + centroid
+            min_dist = point_to_face_distance(coord, vert_on_face, img_faces[face_bool], multiple=True)
+            min_dist_list = np.append(min_dist_list, min_dist)
 
-        if shp.is_inside(coord - x - image_diff[con_ind]):
-            min_dist = 0
-            bc_r.append(min_dist)
-            continue
+        if np.any(shp.is_inside(-1*image_diff - x + coord)):
+            min_dist=np.array([0])
+            min_dist_list = np.append(min_dist_list, min_dist)
 
-        if min_dist == -1:
-            print('WARNING: Point not found!')
-            bc_r.append(min_dist)
+        true_min_dist = np.min(min_dist_list)
+        bc_r = np.append(bc_r,true_min_dist)
+
+
+
+        # dist_images_list = np.sqrt(np.sum((images_pos - points1[coord_i])**2, axis=1))
+        # con_ind = np.argmin(dist_images_list)
+        # coord = points1[coord_i]
+
+        # min_dist = -1
+
+        # vert_bool = np.all(vert_constraint.dot(coord) >= img_vert_bounds[con_ind], axis=1)
+        # if np.any(vert_bool):
+        #     min_dist = LA.norm(coord - (shp_vert[vert_bool]+x+image_diff[con_ind]))
+        #     bc_r.append(min_dist)
+        #     # continue
+
+        # edge_bool = np.all(new_edge_constraint.dot(coord) >= img_edge_bounds[con_ind], axis=1)
+        # if np.any(edge_bool):
+        #     vert_on_edge = shp_vert[shp_edge_vert[edge_bool][0,0]] + x + image_diff[con_ind]
+        #     min_dist = point_to_edge_distance(coord, vert_on_edge, shp_edges[edge_bool][0])
+        #     bc_r.append(min_dist)
+        #     # continue
+
+        # face_bool = np.all(new_face_constraints.dot(coord) >= img_face_bounds[con_ind], axis=1)
+        # if np.any(face_bool):
+        #     vert_on_face = (face_centroids[face_bool] + x + image_diff[con_ind] + centroid)[0]
+        #     min_dist = point_to_face_distance(coord, vert_on_face, shp_faces[face_bool][0])
+        #     bc_r.append(min_dist)
+        #     # continue
+
+        # if shp.is_inside(coord - x - image_diff[con_ind]):
+        #     min_dist = 0
+        #     bc_r.append(min_dist)
+        #     # continue
+
+        # if min_dist == -1:
+        #     print('WARNING: Point not found!')
+        #     bc_r.append(min_dist)
+
+        # print(min_dist == true_min_dist)
+        # if min_dist != true_min_dist:
+        #     print('old', min_dist)
+        #     print('new', true_min_dist)
             
          
         
@@ -893,10 +987,10 @@ bc_end = time.time()
 
 
 
-print(np.round(r_list, 2))
-print(np.round(r_list_new, 2))
-print(np.round(other_r_list, 2))
-print(np.round(bc_r_list, 2))
+# print(np.round(r_list, 2))
+# print(np.round(r_list_new, 2))
+# print(np.round(other_r_list, 2))
+# print(np.round(bc_r_list, 2))
 
 print('Exactly the Same?', np.all(bc_r_list ==  r_list))
 print('Rounded (0.000001) the Same?', np.all(np.round(bc_r_list,6) == np.round(r_list,6)))
@@ -907,7 +1001,7 @@ print('Rounded (0.01) the Same?', np.all(np.round(bc_r_list,2) == np.round(r_lis
 print('Current', current_end - current_start)
 print('New', new_end - new_start)
 print('Other', other_end - other_start)
-print('Bounds', bc_end - bc_start)
+print('Bounds', '\033[1m'+str(bc_end - bc_start)+ '\033[0m')
 # print('Bounds E-F Neighbors', bc_mid)
 # print('Bounds Edges', bc_edge)
 # print('Bounds Faces', bc_face)
@@ -915,7 +1009,8 @@ print('Bounds', bc_end - bc_start)
 print('Bounds For Loop', '\033[1m'+str(bc_for) + '\033[0m')
 print('Current/New Ratio', (current_end - current_start)/(new_end - new_start))
 print('Current/Other Ratio', (current_end - current_start)/(other_end - other_start))
-print('Current/Bounds Ratio', (current_end - current_start)/(bc_end - bc_start))
+print('Current/Bounds Ratio', '\033[1m'+str((current_end - current_start)/(bc_end - bc_start)) + '\033[0m')
+print('Current/Bounds For Ratio', (current_end - current_start)/bc_for)
 print('Other/Bounds Ratio', (other_end - other_start)/(bc_end - bc_start))
 
 
