@@ -171,6 +171,7 @@ def distance_point_point_new_maybe (pt1, pt2):
     return output
 
 points1 = np.array([
+    [2,2,3],
     [0,0,0],
     [1,0,0],
     [0,1,0],
@@ -254,6 +255,7 @@ points1 = np.array([
 ])
 
 
+
 shape_pos = np.array([
     [2,2,2],[4,4,3],
     # [2,2,2],[4,4,3],
@@ -264,6 +266,43 @@ shape_pos = np.array([
 ])
 
 vertices = [
+    #Dodecahedron
+    # (0.5, 0.5, 0.5),
+    # (-0.5, 0.5, 0.5),
+    # (-0.5, -0.5, 0.5),
+    # (-0.5, 0.5, -0.5),
+    # (0.5, -0.5, 0.5),
+    # (0.5, -0.5, -0.5),
+    # (0.5, 0.5, -0.5),
+    # (-0.5, -0.5, -0.5),
+    # (0, 0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5)),
+    # (0, -0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5)),
+    # (0, 0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5)),
+    # (0, -0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5)),
+    # (0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5), 0),
+    # (-0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5), 0),
+    # (0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5), 0),
+    # (-0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5), 0),
+    # (0.5*((1+np.sqrt(5))*0.5), 0, 0.5/((1+np.sqrt(5))*0.5)),
+    # (-0.5*((1+np.sqrt(5))*0.5), 0, 0.5/((1+np.sqrt(5))*0.5)),
+    # (0.5*((1+np.sqrt(5))*0.5), 0, -0.5/((1+np.sqrt(5))*0.5)),
+    # (-0.5*((1+np.sqrt(5))*0.5), 0, -0.5/((1+np.sqrt(5))*0.5)),
+
+    #Tetrahedron
+    # (0, 0, 0.5),
+    # (0, 0.7071, -0.5),
+    # (0.5*np.sqrt(3/2), -0.3535, -0.5),
+    # (-0.5*np.sqrt(3/2), -0.3535, -0.5),
+
+    #Octahedron
+    # (-0.5, 0, 0),
+    # (0.5, 0, 0),
+    # (0, -0.5, 0),
+    # (0, 0.5, 0),
+    # (0, 0, -0.5),
+    # (0, 0, 0.5),
+
+    #Cube
     (0.5, 0.5, 0.5),
     (-0.5, 0.5, 0.5),
     (-0.5, -0.5, 0.5),
@@ -290,13 +329,29 @@ for i, pos in enumerate(shape_pos):
     tmpshape = coxeter.shapes.ConvexPolyhedron(vertices=rot_vert)
 
     normals = tmpshape.normals
+    num_faces = tmpshape.num_faces
+    face_dist = np.sum(tmpshape.face_centroids*normals, axis=1)
+
+    dx = 0.001
+    norms = np.asarray(tmpshape.normals)
+    tmpcentroid = np.asarray(tmpshape.centroid)
+    norm_dists = []
+
+    for norm in norms:
+        x = tmpcentroid
+
+        dx_n = 0
+        while tmpshape.is_inside(x):
+            dx_n = dx_n + 1
+            x = tmpcentroid + dx_n * dx * norm
+        norm_dists.append((dx_n - 1) * dx)
 
     halfspace = []
     image_diff = [[6,0,0], [0,0,0], [-6,0,0]]
     for image in image_diff:
         position = pos + image
-        upper_bounds = normals.dot(position) + 0.5
-        smile = np.block([normals, upper_bounds.reshape((6,1))])
+        upper_bounds = normals.dot(position) + face_dist
+        smile = np.block([normals, upper_bounds.reshape((num_faces,1))])
 
         halfspace.append(smile)
 
@@ -336,7 +391,7 @@ new_halfspaces = np.asarray(new_halfspaces)
 #       [-1/np.sqrt(2), 1/np.sqrt(2),            0,  4.743]]],
 # ])
 
-print(new_halfspaces.shape)
+# print(new_halfspaces.shape)
 
 # halfspaces_ub = new_halfspaces[0][:,-1]
 # halfspaces_values = []
@@ -363,8 +418,11 @@ for s, x in enumerate(shape_pos):
                 fun=distance_point_point,
                 x0=np.zeros(3),
                 args=(points1[i],),
-                constraints=[LinearConstraint(n[:,:-1], -np.inf, n[:,-1])]
+                constraints=[LinearConstraint(n[:,:-1], -np.inf, n[:,-1])],
+                # tol = 0.00001
             )
+            if current_min.success == False:
+                print(current_min.message)
             # print(n[:,:-1].dot(current_min.x) <= n[:,-1])
             min_list.append(current_min.fun)
             # x_list.append(current_min.x)
@@ -424,8 +482,8 @@ for zeros_l in range(n_shapes*n_constraints):
     new_mega_ub.append(new_halfspaces[shape_ind][constraint_ind,:,-1])
 
 new_mega_ub = np.asarray(new_mega_ub).flatten()
-print(new_mega_matrix.shape)
-print(new_mega_ub.shape)
+# print(new_mega_matrix.shape)
+# print(new_mega_ub.shape)
 
 #----- New Min Dist Calculations -----
 new_start = time.time()
@@ -625,6 +683,100 @@ def point_to_face_distance(point, vert, face_normal, multiple=False):
     dist = vert_point_vect.dot(face_unit)
     return dist
 
+def get_vert_boundaries (shp_vert, shp_edges, shp_edge_vert, n_verts, n_edges, x):
+    #Tiling for set up
+    nverts_edge_vert0 = np.tile(shp_edge_vert[:,0], (n_verts, 1))
+    nverts_edge_vert1 = np.tile(shp_edge_vert[:,1], (n_verts, 1))
+    vert_inds = np.arange(0, n_verts, 1).reshape((n_verts, 1))
+    nverts_tile_edges = np.tile(shp_edges, (n_verts, 1)).reshape((n_verts, n_edges, 3))
+
+    #Creating the bools need to get the edges that correspond to each vertice
+    evbool0 = np.expand_dims(nverts_edge_vert0 == vert_inds, axis=2)
+    evbool1 = np.expand_dims(nverts_edge_vert1 == vert_inds, axis=2)
+
+    #Removing the None values from the ak arrays
+    ak_vert_neg = nverts_tile_edges * evbool0 * (-1) 
+    ak_vert_pos = nverts_tile_edges * evbool1
+
+    #Concatenating the ak arrays together to make the vertice constraint array | shape:(n_vert, #, 3)
+    vert_constraint = ak.to_numpy(ak_vert_neg + ak_vert_pos)
+    
+    #Building the boundary conditions
+    vert_bounds = np.sum(vert_constraint * (shp_vert+x).reshape(n_verts,1,3), axis=2)
+
+    return vert_constraint, vert_bounds
+
+def get_edge_boundaries (shp_vert, shp_edges, shp_faces, shp_edge_vert, shp_edge_face, n_edges, x):
+    new_edge_constraint = np.zeros((n_edges, 4, 3))
+    new_edge_bounds = np.zeros((n_edges, 4))
+
+    edge_constraint_col_1 = -1*shp_edges
+    edge_constraint_col_2 = shp_edges
+    edge_constraint_col_3 = -1*np.cross(shp_edges, shp_faces[shp_edge_face[:,1]])
+    edge_constraint_col_4 = np.cross(shp_edges, shp_faces[shp_edge_face[:,0]])
+
+    new_edge_constraint[:,0] = edge_constraint_col_1
+    new_edge_constraint[:,1] = edge_constraint_col_2
+    new_edge_constraint[:,2] = edge_constraint_col_3
+    new_edge_constraint[:,3] = edge_constraint_col_4
+
+    new_edge_verts = np.zeros((n_edges, 2, 3))
+    new_edge_verts[:,0] = shp_vert[shp_edge_vert[:,0]] + x
+    new_edge_verts[:,1] = shp_vert[shp_edge_vert[:,1]] + x
+
+    edge_bounds_1 = np.sum(new_edge_constraint[:,0] *(new_edge_verts[:,1]), axis=1)
+    edge_bounds_2 = np.sum(new_edge_constraint[:,1] *(new_edge_verts[:,0]), axis=1)
+    edge_bounds_3 = np.sum(new_edge_constraint[:,2] *(new_edge_verts[:,0]), axis=1)
+    edge_bounds_4 = np.sum(new_edge_constraint[:,3] *(new_edge_verts[:,0]), axis=1)
+
+    new_edge_bounds[:,0] = edge_bounds_1
+    new_edge_bounds[:,1] = edge_bounds_2
+    new_edge_bounds[:,2] = edge_bounds_3
+    new_edge_bounds[:,3] = edge_bounds_4
+
+    return new_edge_constraint, new_edge_bounds
+
+def get_face_boundaries (shp_vert, shp_edges, shp_faces, shp_edge_vert, shp_edge_face, n_edges, n_faces, x, face_centroids):
+    #Setting up
+    nfaces_tile_edges = np.tile(shp_edges, (n_faces, 1)).reshape((n_faces, n_edges, 3)) #Edge vectors tiled
+    nfaces_tile_efneighbors = np.tile(shp_edge_face, (n_faces, 1)) #Tiling shp_edge_face so that it is now shape (n_faces, n_edges, 2)
+    efneighbors0 = nfaces_tile_efneighbors[:,0].reshape((n_faces, n_edges)) #breaking nfaces_tile_efneighbors into the first column [0]
+    efneighbors1 = nfaces_tile_efneighbors[:,1].reshape((n_faces, n_edges)) #second column [1] of nfaces_tile_efneighbors
+    faces_inds = np.arange(0, n_faces, 1).reshape((n_faces, 1)) #Making an array containing the indices of the faces
+
+    #Creating bools to find the edges that correspond to each face
+    efbool0 = (efneighbors0 == faces_inds)
+    efbool1 = (efneighbors1 == faces_inds)
+
+    ak_edges_mask0 = nfaces_tile_edges * efbool0.reshape((n_faces, n_edges, 1))
+    ak_edges_mask1 = nfaces_tile_edges * efbool1.reshape((n_faces, n_edges, 1))
+    faces_repeat = np.repeat(shp_faces, n_edges, axis=0).reshape((n_faces, n_edges, 3)) 
+
+    neg_constraints = -1* np.cross(ak_edges_mask0, faces_repeat)
+    pos_constraints = np.cross(ak_edges_mask1, faces_repeat)
+    face_normals = shp_faces
+
+    new_face_constraints = np.zeros((n_faces, n_edges+1, 3))
+    new_face_constraints[:,0] = face_normals
+    new_face_constraints[:,1:] = neg_constraints + pos_constraints
+
+    #bounds
+    nfaces_tile_evneighbors = np.tile(shp_edge_vert, (n_faces, 1)).reshape((n_faces, n_edges, 2))
+    neg_face_verts = (shp_vert[(nfaces_tile_evneighbors[:,:,0]*efbool0)] + x)
+    pos_face_verts = (shp_vert[(nfaces_tile_evneighbors[:,:,1]*efbool1)] + x)
+
+    neg_bounds = np.sum(neg_constraints * neg_face_verts, axis=2)
+    pos_bounds = np.sum(pos_constraints * pos_face_verts, axis=2)
+    norm_distances = (face_centroids + x)
+    normal_bounds = np.sum(face_normals*norm_distances, axis=1)
+
+    new_face_bounds = np.zeros((n_faces, n_edges+1))
+    new_face_bounds[:,0] = normal_bounds
+    new_face_bounds[:,1:] = neg_bounds + pos_bounds
+
+    return new_face_constraints, new_face_bounds
+
+
 bc_start = time.time()
 
 bc_mid = 0
@@ -652,147 +804,164 @@ for s,x in enumerate(shape_pos):
     n_faces = shp.num_faces #number of faces
     n_edges = shp.num_edges #number of edges
     n_verts = shp.num_vertices #number of vertices
+    face_centroids = shp.face_centroids
 
-    
+    bc_vert_s = time.time()
+    vert_constraint, vert_bounds = get_vert_boundaries (shp_vert, shp_edges, shp_edge_vert, n_verts, n_edges, x)
+    img_vert_bounds = bounds_for_images(vert_bounds, vert_constraint)
+    bc_vert_e = time.time()
+    bc_vert += (bc_vert_e - bc_vert_s)
+
+    bc_edge_s = time.time()
+    new_edge_constraint, new_edge_bounds = get_edge_boundaries (shp_vert, shp_edges, shp_faces, shp_edge_vert, shp_edge_face, n_edges, x)
+    img_edge_bounds = bounds_for_images(new_edge_bounds, new_edge_constraint)
+    bc_edge_e = time.time()
+    bc_edge += (bc_edge_e - bc_edge_s)
+
+    bc_face_s = time.time()
+    new_face_constraints, new_face_bounds = get_face_boundaries (shp_vert, shp_edges, shp_faces, shp_edge_vert, shp_edge_face, n_edges, n_faces, x, face_centroids)
+    img_face_bounds = bounds_for_images(new_face_bounds, new_face_constraints)
+    bc_face_e = time.time()
+    bc_face += (bc_face_e - bc_face_s)
 
     # faces = np.asarray(shp.faces)
     # print(shp_edge_vert)
     # print(shp_edge_face)
     # print(faces)
 
-    bc_edge_s = time.time()
+    # bc_edge_s = time.time()
     #----- Building the Edge Sections (Constraints & Boundary Conditions) -----
-    new_edge_constraint = np.zeros((len(shp_edges), 4, 3))
-    new_edge_bounds = np.zeros((len(shp_edges), 4))
+    # new_edge_constraint = np.zeros((len(shp_edges), 4, 3))
+    # new_edge_bounds = np.zeros((len(shp_edges), 4))
 
-    edge_constraint_col_1 = -1*shp_edges
-    edge_constraint_col_2 = shp_edges
-    edge_constraint_col_3 = -1*np.cross(shp_edges, shp_faces[shp_edge_face[:,1]])
-    edge_constraint_col_4 = np.cross(shp_edges, shp_faces[shp_edge_face[:,0]])
+    # edge_constraint_col_1 = -1*shp_edges
+    # edge_constraint_col_2 = shp_edges
+    # edge_constraint_col_3 = -1*np.cross(shp_edges, shp_faces[shp_edge_face[:,1]])
+    # edge_constraint_col_4 = np.cross(shp_edges, shp_faces[shp_edge_face[:,0]])
 
-    new_edge_constraint[:,0] = edge_constraint_col_1
-    new_edge_constraint[:,1] = edge_constraint_col_2
-    new_edge_constraint[:,2] = edge_constraint_col_3
-    new_edge_constraint[:,3] = edge_constraint_col_4
-    # new_edge_constraint = np.block([edge_constraint_col_1, edge_constraint_col_2, edge_constraint_col_3, edge_constraint_col_4]).reshape(n_edges, 4, 3)
+    # new_edge_constraint[:,0] = edge_constraint_col_1
+    # new_edge_constraint[:,1] = edge_constraint_col_2
+    # new_edge_constraint[:,2] = edge_constraint_col_3
+    # new_edge_constraint[:,3] = edge_constraint_col_4
+    # # new_edge_constraint = np.block([edge_constraint_col_1, edge_constraint_col_2, edge_constraint_col_3, edge_constraint_col_4]).reshape(n_edges, 4, 3)
 
-    new_edge_verts = np.zeros((len(shp_edges), 2, 3))
-    new_edge_verts[:,0] = shp_vert[shp_edge_vert[:,0]] + x
-    new_edge_verts[:,1] = shp_vert[shp_edge_vert[:,1]] + x
+    # new_edge_verts = np.zeros((len(shp_edges), 2, 3))
+    # new_edge_verts[:,0] = shp_vert[shp_edge_vert[:,0]] + x
+    # new_edge_verts[:,1] = shp_vert[shp_edge_vert[:,1]] + x
 
-    edge_bounds_1 = np.sum(new_edge_constraint[:,0] *(new_edge_verts[:,1]), axis=1)
-    edge_bounds_2 = np.sum(new_edge_constraint[:,1] *(new_edge_verts[:,0]), axis=1)
-    edge_bounds_3 = np.sum(new_edge_constraint[:,2] *(new_edge_verts[:,0]), axis=1)
-    edge_bounds_4 = np.sum(new_edge_constraint[:,3] *(new_edge_verts[:,0]), axis=1)
+    # edge_bounds_1 = np.sum(new_edge_constraint[:,0] *(new_edge_verts[:,1]), axis=1)
+    # edge_bounds_2 = np.sum(new_edge_constraint[:,1] *(new_edge_verts[:,0]), axis=1)
+    # edge_bounds_3 = np.sum(new_edge_constraint[:,2] *(new_edge_verts[:,0]), axis=1)
+    # edge_bounds_4 = np.sum(new_edge_constraint[:,3] *(new_edge_verts[:,0]), axis=1)
 
-    new_edge_bounds[:,0] = edge_bounds_1
-    new_edge_bounds[:,1] = edge_bounds_2
-    new_edge_bounds[:,2] = edge_bounds_3
-    new_edge_bounds[:,3] = edge_bounds_4
+    # new_edge_bounds[:,0] = edge_bounds_1
+    # new_edge_bounds[:,1] = edge_bounds_2
+    # new_edge_bounds[:,2] = edge_bounds_3
+    # new_edge_bounds[:,3] = edge_bounds_4
 
     # new_edge_bounds = np.block([edge_bounds_1, edge_bounds_2, edge_bounds_3, edge_bounds_4]).reshape(n_edges, 4)
 
     # print(new_edge_constraint.dot(np.array([2,3,3])) >= new_edge_bounds)
     #constraint matrix normals are pointing inwards, so use lower bounds
-    img_edge_bounds = bounds_for_images(new_edge_bounds, new_edge_constraint)
-    bc_edge_e = time.time()
-    bc_edge += (bc_edge_e - bc_edge_s)
+    # img_edge_bounds = bounds_for_images(new_edge_bounds, new_edge_constraint)
+    # bc_edge_e = time.time()
+    # bc_edge += (bc_edge_e - bc_edge_s)
 
 
 
-    bc_face_s = time.time()
+    # bc_face_s = time.time()
     #----- Building the Face Sections (Constraints & Boundary Conditions) -----
     #Setting up
-    nfaces_tile_edges = np.tile(shp_edges, (n_faces, 1)).reshape((n_faces, n_edges, 3)) #Edge vectors tiled
-    nfaces_tile_efneighbors = np.tile(shp_edge_face, (n_faces, 1)) #Tiling shp_edge_face so that it is now shape (n_faces, n_edges, 2)
-    efneighbors0 = nfaces_tile_efneighbors[:,0].reshape((n_faces, n_edges)) #breaking nfaces_tile_efneighbors into the first column [0]
-    efneighbors1 = nfaces_tile_efneighbors[:,1].reshape((n_faces, n_edges)) #second column [1] of nfaces_tile_efneighbors
-    faces_inds = np.arange(0, n_faces, 1).reshape((n_faces, 1)) #Making an array containing the indices of the faces
+    # nfaces_tile_edges = np.tile(shp_edges, (n_faces, 1)).reshape((n_faces, n_edges, 3)) #Edge vectors tiled
+    # nfaces_tile_efneighbors = np.tile(shp_edge_face, (n_faces, 1)) #Tiling shp_edge_face so that it is now shape (n_faces, n_edges, 2)
+    # efneighbors0 = nfaces_tile_efneighbors[:,0].reshape((n_faces, n_edges)) #breaking nfaces_tile_efneighbors into the first column [0]
+    # efneighbors1 = nfaces_tile_efneighbors[:,1].reshape((n_faces, n_edges)) #second column [1] of nfaces_tile_efneighbors
+    # faces_inds = np.arange(0, n_faces, 1).reshape((n_faces, 1)) #Making an array containing the indices of the faces
 
-    #Creating bools to find the edges that correspond to each face
-    efbool0 = (efneighbors0 == faces_inds)
-    efbool1 = (efneighbors1 == faces_inds)
+    # #Creating bools to find the edges that correspond to each face
+    # efbool0 = (efneighbors0 == faces_inds)
+    # efbool1 = (efneighbors1 == faces_inds)
     
-    #Applying the bools to get the edge vectors corresponding to each face
-    # ak_edges_mask0 = ak.to_numpy(ak.mask(nfaces_tile_edges, efbool0)) #Applying the bool: efbool0 to ak_tile_edges, but returning Nones for False instead of removing them
-    # ak_edges_mask1 = ak.to_numpy(ak.mask(nfaces_tile_edges, efbool1))#^---
+    # #Applying the bools to get the edge vectors corresponding to each face
+    # # ak_edges_mask0 = ak.to_numpy(ak.mask(nfaces_tile_edges, efbool0)) #Applying the bool: efbool0 to ak_tile_edges, but returning Nones for False instead of removing them
+    # # ak_edges_mask1 = ak.to_numpy(ak.mask(nfaces_tile_edges, efbool1))#^---
 
-    ak_edges_mask0 = nfaces_tile_edges * efbool0.reshape((n_faces, n_edges, 1))
-    ak_edges_mask1 = nfaces_tile_edges * efbool1.reshape((n_faces, n_edges, 1))
-    faces_repeat = np.repeat(shp_faces, n_edges, axis=0).reshape((n_faces, n_edges, 3)) 
+    # ak_edges_mask0 = nfaces_tile_edges * efbool0.reshape((n_faces, n_edges, 1))
+    # ak_edges_mask1 = nfaces_tile_edges * efbool1.reshape((n_faces, n_edges, 1))
+    # faces_repeat = np.repeat(shp_faces, n_edges, axis=0).reshape((n_faces, n_edges, 3)) 
 
-    # print('numpy',ak_edges_mask0[0])
-    # print('numpy',ak_edges_mask1[0])
+    # # print('numpy',ak_edges_mask0[0])
+    # # print('numpy',ak_edges_mask1[0])
 
-    #Creating the constraints that are a -1 cross product (edges X faces) (points inwards)
-    # neg_constraints = ak.from_numpy(-1*np.cross(ak_edges_mask0, faces_repeat)) #Doing the cross product of the edges to the faces
-    # neg_constraints = ak.drop_none(ak.nan_to_none(neg_constraints)) #changing the NaN back to None, and then dropping the None
-    # neg_counts = ak.num(neg_constraints, axis=2)
-    # neg_counts = ak.flatten(neg_counts[neg_counts != 0])
-    # neg_constraints = ak.flatten(neg_constraints, axis=2)
-    # neg_constraints = ak.unflatten(neg_constraints, neg_counts, axis=1)
-    # neg_con_count = ak.num(neg_constraints, axis=1)
-    neg_constraints = -1* np.cross(ak_edges_mask0, faces_repeat)
-    # print(neg_con_count)
+    # #Creating the constraints that are a -1 cross product (edges X faces) (points inwards)
+    # # neg_constraints = ak.from_numpy(-1*np.cross(ak_edges_mask0, faces_repeat)) #Doing the cross product of the edges to the faces
+    # # neg_constraints = ak.drop_none(ak.nan_to_none(neg_constraints)) #changing the NaN back to None, and then dropping the None
+    # # neg_counts = ak.num(neg_constraints, axis=2)
+    # # neg_counts = ak.flatten(neg_counts[neg_counts != 0])
+    # # neg_constraints = ak.flatten(neg_constraints, axis=2)
+    # # neg_constraints = ak.unflatten(neg_constraints, neg_counts, axis=1)
+    # # neg_con_count = ak.num(neg_constraints, axis=1)
+    # neg_constraints = -1* np.cross(ak_edges_mask0, faces_repeat)
+    # # print(neg_con_count)
 
-    #Creating the constraints that are a +1 cross product (edges X faces) (points inwards)
-    # pos_constraints = ak.from_numpy(np.cross(ak_edges_mask1, faces_repeat))
-    # pos_constraints = ak.drop_none(ak.nan_to_none(pos_constraints))
-    # pos_counts = ak.num(pos_constraints, axis=2)
-    # pos_counts = ak.flatten(pos_counts[pos_counts != 0])
-    # pos_constraints = ak.flatten(pos_constraints, axis=2)
-    # pos_constraints = ak.unflatten(pos_constraints, pos_counts, axis=1)
-    # pos_con_count = ak.num(pos_constraints, axis=1)
-    pos_constraints = np.cross(ak_edges_mask1, faces_repeat)
-    # print(pos_con_count)
+    # #Creating the constraints that are a +1 cross product (edges X faces) (points inwards)
+    # # pos_constraints = ak.from_numpy(np.cross(ak_edges_mask1, faces_repeat))
+    # # pos_constraints = ak.drop_none(ak.nan_to_none(pos_constraints))
+    # # pos_counts = ak.num(pos_constraints, axis=2)
+    # # pos_counts = ak.flatten(pos_counts[pos_counts != 0])
+    # # pos_constraints = ak.flatten(pos_constraints, axis=2)
+    # # pos_constraints = ak.unflatten(pos_constraints, pos_counts, axis=1)
+    # # pos_con_count = ak.num(pos_constraints, axis=1)
+    # pos_constraints = np.cross(ak_edges_mask1, faces_repeat)
+    # # print(pos_con_count)
 
-    #Creating the constraints that come from the normals of each face
-    face_normals = shp_faces
+    # #Creating the constraints that come from the normals of each face
+    # face_normals = shp_faces
     
-    #Concatenating the separate constraints together into one
-    # new_face_constraints = ak.concatenate((face_normals, neg_constraints, pos_constraints), axis=1)
-    # face_con_counts = ak.num(new_face_constraints, axis=2)
-    # face_con_counts = ak.flatten(face_con_counts[face_con_counts != 0])
-    # new_face_constraints = ak.flatten(new_face_constraints, axis=2)
-    # new_face_constraints = ak.to_numpy(ak.unflatten(new_face_constraints, face_con_counts, axis=1))
-    new_face_constraints = np.zeros((n_faces, n_edges+1, 3))
-    new_face_constraints[:,0] = face_normals
-    new_face_constraints[:,1:] = neg_constraints + pos_constraints
+    # #Concatenating the separate constraints together into one
+    # # new_face_constraints = ak.concatenate((face_normals, neg_constraints, pos_constraints), axis=1)
+    # # face_con_counts = ak.num(new_face_constraints, axis=2)
+    # # face_con_counts = ak.flatten(face_con_counts[face_con_counts != 0])
+    # # new_face_constraints = ak.flatten(new_face_constraints, axis=2)
+    # # new_face_constraints = ak.to_numpy(ak.unflatten(new_face_constraints, face_con_counts, axis=1))
+    # new_face_constraints = np.zeros((n_faces, n_edges+1, 3))
+    # new_face_constraints[:,0] = face_normals
+    # new_face_constraints[:,1:] = neg_constraints + pos_constraints
 
-    #bounds
-    nfaces_tile_evneighbors = np.tile(shp_edge_vert, (n_faces, 1)).reshape((n_faces, n_edges, 2))
-    # neg_face_verts = ak.from_numpy(shp_vert[nfaces_tile_evneighbors[efbool0][:,0]] + x)
-    # neg_face_verts = ak.unflatten(neg_face_verts, neg_con_count, axis=0)
-    neg_face_verts = (shp_vert[(nfaces_tile_evneighbors[:,:,0]*efbool0)] + x)
+    # #bounds
+    # nfaces_tile_evneighbors = np.tile(shp_edge_vert, (n_faces, 1)).reshape((n_faces, n_edges, 2))
+    # # neg_face_verts = ak.from_numpy(shp_vert[nfaces_tile_evneighbors[efbool0][:,0]] + x)
+    # # neg_face_verts = ak.unflatten(neg_face_verts, neg_con_count, axis=0)
+    # neg_face_verts = (shp_vert[(nfaces_tile_evneighbors[:,:,0]*efbool0)] + x)
 
-    # pos_face_verts = ak.from_numpy(shp_vert[nfaces_tile_evneighbors[efbool1][:,1]] + x)
-    # pos_face_verts = ak.unflatten(pos_face_verts, pos_con_count, axis=0)
-    pos_face_verts = (shp_vert[(nfaces_tile_evneighbors[:,:,1]*efbool1)] + x)
+    # # pos_face_verts = ak.from_numpy(shp_vert[nfaces_tile_evneighbors[efbool1][:,1]] + x)
+    # # pos_face_verts = ak.unflatten(pos_face_verts, pos_con_count, axis=0)
+    # pos_face_verts = (shp_vert[(nfaces_tile_evneighbors[:,:,1]*efbool1)] + x)
 
-    neg_bounds = np.sum(neg_constraints * neg_face_verts, axis=2)
-    pos_bounds = np.sum(pos_constraints * pos_face_verts, axis=2)
-    norm_distances = (shp.face_centroids + shp.centroid + x)
-    normal_bounds = np.sum(face_normals*norm_distances, axis=1)
+    # neg_bounds = np.sum(neg_constraints * neg_face_verts, axis=2)
+    # pos_bounds = np.sum(pos_constraints * pos_face_verts, axis=2)
+    # norm_distances = (shp.face_centroids + x)
+    # normal_bounds = np.sum(face_normals*norm_distances, axis=1)
 
-    # print('neg', neg_bounds)
-    # print('pos', pos_bounds)
+    # # print('neg', neg_bounds)
+    # # print('pos', pos_bounds)
     
-    # print(neg_bounds[1])
-    # print(pos_bounds[1])
-    # new_face_bounds = ak.to_numpy(ak.concatenate((normal_bounds, neg_bounds, pos_bounds), axis=1))pos_neg_bounds = np.sum()
-    # face_dot = neg_face_verts + pos_face_verts
-    # face_mat_dot = neg_constraints + pos_constraints
-    # pos_neg_bounds = np.sum(face_mat_dot * face_dot, axis=2)
+    # # print(neg_bounds[1])
+    # # print(pos_bounds[1])
+    # # new_face_bounds = ak.to_numpy(ak.concatenate((normal_bounds, neg_bounds, pos_bounds), axis=1))pos_neg_bounds = np.sum()
+    # # face_dot = neg_face_verts + pos_face_verts
+    # # face_mat_dot = neg_constraints + pos_constraints
+    # # pos_neg_bounds = np.sum(face_mat_dot * face_dot, axis=2)
 
-    new_face_bounds = np.zeros((n_faces, n_edges+1))
-    new_face_bounds[:,0] = normal_bounds
-    new_face_bounds[:,1:] = neg_bounds + pos_bounds
+    # new_face_bounds = np.zeros((n_faces, n_edges+1))
+    # new_face_bounds[:,0] = normal_bounds
+    # new_face_bounds[:,1:] = neg_bounds + pos_bounds
 
     # print(new_face_bounds)
     
-    img_face_bounds = bounds_for_images(new_face_bounds, new_face_constraints)
-    bc_face_e = time.time()
-    bc_face += (bc_face_e - bc_face_s)
+    # img_face_bounds = bounds_for_images(new_face_bounds, new_face_constraints)
+    # bc_face_e = time.time()
+    # bc_face += (bc_face_e - bc_face_s)
 
     #----- Old Face Boundaries -----
     # face_constraint = []
@@ -840,37 +1009,37 @@ for s,x in enumerate(shape_pos):
     # print(face_bounds)
     
 
-    bc_vert_s = time.time()
+    # bc_vert_s = time.time()
     #----- Building the Vertice Sections (Constraint & Boundary Conditions) -----
-    #Tiling for set up
-    nverts_edge_vert0 = np.tile(shp_edge_vert[:,0], (n_verts, 1))
-    nverts_edge_vert1 = np.tile(shp_edge_vert[:,1], (n_verts, 1))
-    vert_inds = np.arange(0, n_verts, 1).reshape((n_verts, 1))
-    nverts_tile_edges = np.tile(shp_edges, (n_verts, 1)).reshape((n_verts, n_edges, 3))
+    # #Tiling for set up
+    # nverts_edge_vert0 = np.tile(shp_edge_vert[:,0], (n_verts, 1))
+    # nverts_edge_vert1 = np.tile(shp_edge_vert[:,1], (n_verts, 1))
+    # vert_inds = np.arange(0, n_verts, 1).reshape((n_verts, 1))
+    # nverts_tile_edges = np.tile(shp_edges, (n_verts, 1)).reshape((n_verts, n_edges, 3))
 
-    #Creating the bools need to get the edges that correspond to each vertice
-    evbool0 = np.expand_dims(nverts_edge_vert0 == vert_inds, axis=2)
-    evbool1 = np.expand_dims(nverts_edge_vert1 == vert_inds, axis=2)
+    # #Creating the bools need to get the edges that correspond to each vertice
+    # evbool0 = np.expand_dims(nverts_edge_vert0 == vert_inds, axis=2)
+    # evbool1 = np.expand_dims(nverts_edge_vert1 == vert_inds, axis=2)
 
-    #Finding the edge vectors that correspond to each vertice using the bools previously created
-    # ak_vert_mask0 = ak.mask(nverts_tile_edges, evbool0)
-    # ak_vert_mask1 = ak.mask(nverts_tile_edges, evbool1)
+    # #Finding the edge vectors that correspond to each vertice using the bools previously created
+    # # ak_vert_mask0 = ak.mask(nverts_tile_edges, evbool0)
+    # # ak_vert_mask1 = ak.mask(nverts_tile_edges, evbool1)
 
-    #Removing the None values from the ak arrays
-    # ak_vert_neg = ak.drop_none(ak_vert_mask0) * (-1)
-    # ak_vert_pos = ak.drop_none(ak_vert_mask1)
-    ak_vert_neg = nverts_tile_edges * evbool0 * (-1) #ak.fill_none(ak_vert_mask0, [0,0,0], axis=None) * (-1)
-    ak_vert_pos = nverts_tile_edges * evbool1 #ak.fill_none(ak_vert_mask1, [0,0,0], axis=None)
+    # #Removing the None values from the ak arrays
+    # # ak_vert_neg = ak.drop_none(ak_vert_mask0) * (-1)
+    # # ak_vert_pos = ak.drop_none(ak_vert_mask1)
+    # ak_vert_neg = nverts_tile_edges * evbool0 * (-1) #ak.fill_none(ak_vert_mask0, [0,0,0], axis=None) * (-1)
+    # ak_vert_pos = nverts_tile_edges * evbool1 #ak.fill_none(ak_vert_mask1, [0,0,0], axis=None)
 
-    #Concatenating the ak arrays together to make the vertice constraint array | shape:(n_vert, #, 3)
-    vert_constraint = ak.to_numpy(ak_vert_neg + ak_vert_pos)
-    # vert_constraint = ak.fill_none(vert_constraint, [0,0,0], axis=None)
+    # #Concatenating the ak arrays together to make the vertice constraint array | shape:(n_vert, #, 3)
+    # vert_constraint = ak.to_numpy(ak_vert_neg + ak_vert_pos)
+    # # vert_constraint = ak.fill_none(vert_constraint, [0,0,0], axis=None)
     
-    #Building the boundary conditions
-    # evbool_tot = evbool0 + evbool1
-    # nedges_repeat_verts = np.repeat((shp_vert+x).reshape(n_verts,1,3), n_edges, axis=1)
-    # dot_verts = ak.fill_none(ak.mask(nedges_repeat_verts, evbool_tot), [0,0,0], axis=None)
-    vert_bounds = np.sum(vert_constraint * (shp_vert+x).reshape(n_verts,1,3), axis=2)
+    # #Building the boundary conditions
+    # # evbool_tot = evbool0 + evbool1
+    # # nedges_repeat_verts = np.repeat((shp_vert+x).reshape(n_verts,1,3), n_edges, axis=1)
+    # # dot_verts = ak.fill_none(ak.mask(nedges_repeat_verts, evbool_tot), [0,0,0], axis=None)
+    # vert_bounds = np.sum(vert_constraint * (shp_vert+x).reshape(n_verts,1,3), axis=2)
 
     # vert_constraint_np = ak.to_numpy(vert_constraint)
     # vert_bounds_np = ak.to_numpy(vert_bounds)
@@ -880,17 +1049,15 @@ for s,x in enumerate(shape_pos):
     # print(np.sum(vert_constraint_np * np.array([3,3,3]), axis=1) >= vert_bounds_np)
 
     
-    img_vert_bounds = bounds_for_images(vert_bounds, vert_constraint)
-    bc_vert_e = time.time()
-    bc_vert += (bc_vert_e - bc_vert_s)
+    # img_vert_bounds = bounds_for_images(vert_bounds, vert_constraint)
+    # bc_vert_e = time.time()
+    # bc_vert += (bc_vert_e - bc_vert_s)
 
     # make_edges = shp_vert[shp_edge_vert[:,1]] - shp_vert[shp_edge_vert[:,0]]
 
     bc_for_s = time.time()
     image_diff = np.array([[6,0,0], [0,0,0], [-6,0,0]])
     images_pos = (x+np.array([6,0,0]), x, x+np.array([-6,0,0]))
-    face_centroids = shp.face_centroids
-    centroid = shp.centroid
     img_verts = np.tile(shp_vert.reshape(1, n_verts,3), (3,1,1))
     img_edges = np.tile(shp_edges.reshape(1, n_edges,3), (3,1,1))
     img_faces = np.tile(shp_faces.reshape(1, n_faces,3), (3,1,1))
@@ -899,6 +1066,8 @@ for s,x in enumerate(shape_pos):
     img_face_centroids = np.tile(face_centroids.reshape(1,n_faces,3), (3,1,1))
     bc_r = np.array([])
     for coord_i in range(len(points1)):
+
+        #IMPORTANT: When finding the 8 nearest shapes, find the distance between coord and shape_pos + shape_centroid
 
         #Building code to do more than one image at once
         coord = points1[coord_i]
@@ -920,7 +1089,7 @@ for s,x in enumerate(shape_pos):
         face_bool = np.all(img_face_bounds <= new_face_constraints.dot(coord), axis=2)
         if np.any(face_bool):
             face_bool_img = np.any(face_bool, axis=1)
-            vert_on_face = img_face_centroids[face_bool] + x + image_diff[face_bool_img] + centroid
+            vert_on_face = img_face_centroids[face_bool] + x + image_diff[face_bool_img] 
             min_dist = point_to_face_distance(coord, vert_on_face, img_faces[face_bool], multiple=True)
             min_dist_list = np.append(min_dist_list, min_dist)
 
@@ -987,16 +1156,23 @@ bc_end = time.time()
 
 
 
-# print(np.round(r_list, 2))
+print(np.round(r_list, 2))
 # print(np.round(r_list_new, 2))
 # print(np.round(other_r_list, 2))
-# print(np.round(bc_r_list, 2))
+print(np.round(bc_r_list, 2))
+# print('difference',abs(r_list - bc_r_list))
+print('max difference:',np.max(abs(r_list - bc_r_list)))
+print('min difference:',np.min(abs(r_list - bc_r_list)))
+print('mean difference:',np.mean(abs(r_list - bc_r_list)))
+print('std:', np.std(abs(r_list - bc_r_list)))
 
 print('Exactly the Same?', np.all(bc_r_list ==  r_list))
 print('Rounded (0.000001) the Same?', np.all(np.round(bc_r_list,6) == np.round(r_list,6)))
 print('Rounded (0.00001) the Same?', np.all(np.round(bc_r_list,5) == np.round(r_list,5)))
 print('Rounded (0.0001) the Same?', np.all(np.round(bc_r_list,4) == np.round(r_list,4)))
+print('Rounded (0.001) the Same?', np.all(np.round(bc_r_list,3) == np.round(r_list,3)))
 print('Rounded (0.01) the Same?', np.all(np.round(bc_r_list,2) == np.round(r_list,2)))
+print('Rounded (0.1) the Same?', np.all(np.round(bc_r_list,1) == np.round(r_list,1)))
 
 print('Current', current_end - current_start)
 print('New', new_end - new_start)
