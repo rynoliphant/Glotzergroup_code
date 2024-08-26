@@ -171,7 +171,6 @@ def distance_point_point_new_maybe (pt1, pt2):
     return output
 
 points1 = np.array([
-    [2,2,3],
     [0,0,0],
     [1,0,0],
     [0,1,0],
@@ -193,6 +192,7 @@ points1 = np.array([
     [2,1,2],
     [1,2,2],
     [2,2,2],
+    [2,2,3],
     [3,1,1],
     [1,3,1],
     [1,1,3],
@@ -212,57 +212,17 @@ points1 = np.array([
     [6,6,5],
     [6,6,6],
 
-    [0,0,0],
-    [1,0,0],
-    [0,1,0],
-    [0,0,1],
-    [1,1,0],
-    [1,0,1],
-    [0,1,1],
-    [1,1,1],
-    [2,0,0],
-    [0,2,0],
-    [0,0,2],
-    [2,2,0],
-    [2,0,2],
-    [0,2,2],
-    [2,1,1],
-    [1,2,1],
-    [1,1,2],
-    [2,2,1],
-    [2,1,2],
-    [1,2,2],
-    [2,2,2],
-    [3,1,1],
-    [1,3,1],
-    [1,1,3],
-    [3,3,1],
-    [3,1,3],
-    [1,3,3],
-    [3,2,2],
-    [3,3,2],
-    [3,3,3],
-    [4,3,3],
-    [4,4,3],
-    [4,4,4],
-    [5,4,4],
-    [5,5,4],
-    [5,5,5],
-    [6,5,5],
-    [6,6,5],
-    [6,6,6]
-
 ])
 
-
+points1 = np.asarray(list(points1) * 5)
 
 shape_pos = np.array([
     [2,2,2],[4,4,3],
-    [2,2,2],[4,4,3],
-    [2,2,2],[4,4,3],
-    [2,2,2],[4,4,3],
-    [2,2,2],[4,4,3],
-    [2,2,2],[4,4,3],
+    # [2,2,2],[4,4,3],
+    # [2,2,2],[4,4,3],
+    # [2,2,2],[4,4,3],
+    # [2,2,2],[4,4,3],
+    # [2,2,2],[4,4,3],
 ])
 
 vertices = [
@@ -427,11 +387,11 @@ vertices = [
 
 orientations = [
     (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
-    (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
-    (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
-    (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
-    (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
-    (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
+    # (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
+    # (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
+    # (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
+    # (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
+    # (1,0,0,0), (0.3647046, 0.1159188, -0.2798528, 0.8804747),
 ]
 
 shapes = []
@@ -531,7 +491,7 @@ for s, x in enumerate(shape_pos):
                 x0=np.zeros(3),
                 args=(points1[i],),
                 constraints=[LinearConstraint(n[:,:-1], -np.inf, n[:,-1])],
-                # tol = 0.00000001
+                tol = 0.0000000001
             )
             if current_min.success == False:
                 print(current_min.message)
@@ -807,8 +767,8 @@ def get_vert_boundaries (shp_vert, shp_edges, shp_edge_vert, n_verts, n_edges, x
     evbool1 = np.expand_dims(nverts_edge_vert1 == vert_inds, axis=2)
 
     #Removing the None values from the ak arrays
-    ak_vert_neg = nverts_tile_edges * evbool0 * (-1) 
-    ak_vert_pos = nverts_tile_edges * evbool1
+    ak_vert_neg = nverts_tile_edges * evbool0
+    ak_vert_pos = nverts_tile_edges * evbool1 * (-1) 
 
     #Concatenating the ak arrays together to make the vertice constraint array | shape:(n_vert, #, 3)
     vert_constraint = ak.to_numpy(ak_vert_neg + ak_vert_pos)
@@ -822,10 +782,10 @@ def get_edge_boundaries (shp_vert, shp_edges, shp_faces, shp_edge_vert, shp_edge
     new_edge_constraint = np.zeros((n_edges, 4, 3))
     new_edge_bounds = np.zeros((n_edges, 4))
 
-    edge_constraint_col_1 = -1*shp_edges
-    edge_constraint_col_2 = shp_edges
-    edge_constraint_col_3 = -1*np.cross(shp_edges, shp_faces[shp_edge_face[:,1]])
-    edge_constraint_col_4 = np.cross(shp_edges, shp_faces[shp_edge_face[:,0]])
+    edge_constraint_col_1 = shp_edges
+    edge_constraint_col_2 = -1*shp_edges
+    edge_constraint_col_3 = np.cross(shp_edges, shp_faces[shp_edge_face[:,1]])
+    edge_constraint_col_4 = -1*np.cross(shp_edges, shp_faces[shp_edge_face[:,0]])
 
     new_edge_constraint[:,0] = edge_constraint_col_1
     new_edge_constraint[:,1] = edge_constraint_col_2
@@ -864,9 +824,9 @@ def get_face_boundaries (shp_vert, shp_edges, shp_faces, shp_edge_vert, shp_edge
     ak_edges_mask1 = nfaces_tile_edges * efbool1.reshape((n_faces, n_edges, 1))
     faces_repeat = np.repeat(shp_faces, n_edges, axis=0).reshape((n_faces, n_edges, 3)) 
 
-    neg_constraints = -1* np.cross(ak_edges_mask0, faces_repeat)
-    pos_constraints = np.cross(ak_edges_mask1, faces_repeat)
-    face_normals = shp_faces
+    neg_constraints = np.cross(ak_edges_mask0, faces_repeat)
+    pos_constraints = -1* np.cross(ak_edges_mask1, faces_repeat)
+    face_normals = -1* shp_faces
 
     new_face_constraints = np.zeros((n_faces, n_edges+1, 3))
     new_face_constraints[:,0] = face_normals
@@ -1185,20 +1145,20 @@ for s,x in enumerate(shape_pos):
         coord = points1[coord_i]
         min_dist_list = np.array([])
 
-        vert_bool = np.all(img_vert_bounds <= vert_constraint.dot(coord), axis=2)
+        vert_bool = np.all(img_vert_bounds >= vert_constraint.dot(coord), axis=2)
         if np.any(vert_bool):
             vert_bool_img = np.any(vert_bool, axis=1)
             min_dist = LA.norm(-1*(img_verts[vert_bool] + image_diff[vert_bool_img] + x) + coord, axis=1)
             min_dist_list = np.append(min_dist_list, min_dist)
 
-        edge_bool = np.all(img_edge_bounds <= new_edge_constraint.dot(coord), axis=2)
+        edge_bool = np.all(img_edge_bounds >= new_edge_constraint.dot(coord), axis=2)
         if np.any(edge_bool):
             edge_bool_img = np.any(edge_bool, axis=1)
             vert_on_edge = shp_vert[img_ev_neighbors[edge_bool][:,0]] + x + image_diff[edge_bool_img]
             min_dist = point_to_edge_distance(coord, vert_on_edge, img_edges[edge_bool], multiple=True)
             min_dist_list = np.append(min_dist_list, min_dist)
 
-        face_bool = np.all(img_face_bounds <= new_face_constraints.dot(coord), axis=2)
+        face_bool = np.all(img_face_bounds >= new_face_constraints.dot(coord), axis=2)
         if np.any(face_bool):
             face_bool_img = np.any(face_bool, axis=1)
             vert_on_face = img_face_centroids[face_bool] + x + image_diff[face_bool_img] 
@@ -1292,12 +1252,12 @@ print('Current', '\033[1m'+str(current_end - current_start)+ '\033[0m')
 # print('New', new_end - new_start)
 print('Other', other_end - other_start)
 print('Bounds', '\033[1m'+str(bc_end - bc_start)+ '\033[0m')
-# print('Bounds E-F Neighbors', bc_mid)
-# print('Bounds Edges', bc_edge)
-# print('Bounds Faces', bc_face)
-# print('Bounds Verts', bc_vert)
+print('Bounds E-F Neighbors', bc_mid)
+print('Bounds Edges', bc_edge)
+print('Bounds Faces', bc_face)
+print('Bounds Verts', bc_vert)
 print('Bounds For Loop', bc_for)
-print('Current/New Ratio', (current_end - current_start)/(new_end - new_start))
+# print('Current/New Ratio', (current_end - current_start)/(new_end - new_start))
 print('Current/Other Ratio', (current_end - current_start)/(other_end - other_start))
 print('Current/Bounds Ratio', '\033[1m'+str((current_end - current_start)/(bc_end - bc_start)) + '\033[0m')
 print('Current/Bounds For Ratio', (current_end - current_start)/bc_for)
