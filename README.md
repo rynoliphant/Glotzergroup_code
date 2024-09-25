@@ -13,12 +13,16 @@ First, we need to define our system. For this example, we will have a single cub
 
 
 We will define the vertices of the cube as:
-$$\mathbf{V} = \begin{bmatrix} \mathbf{v_1}\\ \mathbf{v_2}\\ \mathbf{v_3}\\ \mathbf{v_4}\\ \mathbf{v_5}\\ \mathbf{v_6}\\ \mathbf{v_7}\\ \mathbf{v_8} \end{bmatrix} = \begin{bmatrix} 1&1&1\\ -1&1&1\\ 1&-1&1\\ 1&1&-1\\ -1&-1&1\\ -1&1&-1\\ 1&-1&-1\\ -1&-1&-1 \end{bmatrix}$$
+```math
+\mathbf{V} = \begin{bmatrix} \mathbf{v_1}\\ \mathbf{v_2}\\ \mathbf{v_3}\\ \mathbf{v_4}\\ \mathbf{v_5}\\ \mathbf{v_6}\\ \mathbf{v_7}\\ \mathbf{v_8} \end{bmatrix} = \begin{bmatrix} 1&1&1\\ -1&1&1\\ 1&-1&1\\ 1&1&-1\\ -1&-1&1\\ -1&1&-1\\ 1&-1&-1\\ -1&-1&-1 \end{bmatrix}
+```
 
 The vertices of any shape are user defined. In this example, the vertices are defined with the origin as the center of the cube, but it is not a requirement to have the origin as the center of the shape when defining the vertices.
 
 From the vertices, we can get the edge vectors, which are taken to be the difference between the two corresponding vertices for each edge. We define two variables: edge-vertex neighbors ($$\mathbf{N_{vert}}$$) and edges ($$\mathbf{E}$$), where $$\mathbf{N_{vert}}$$ contains the corresponding vertices for each edge, and $$\mathbf{E}$$ contains the difference between the vertices in the two columns of $$\mathbf{N_{vert}}$$:
-$$\mathbf{N_{vert}} = \begin{bmatrix} \mathbf{v_1}&\mathbf{v_2}\\ \mathbf{v_1}&\mathbf{v_3}\\ \mathbf{v_1}&\mathbf{v_4}\\ \mathbf{v_2}&\mathbf{v_5}\\ \mathbf{v_2}&\mathbf{v_6}\\ \mathbf{v_3}&\mathbf{v_5}\\ \mathbf{v_3}&\mathbf{v_7}\\ \mathbf{v_4}&\mathbf{v_6}\\ \mathbf{v_4}&\mathbf{v_7}\\ \mathbf{v_5}&\mathbf{v_8}\\ \mathbf{v_6}&\mathbf{v_8}\\ \mathbf{v_7}&\mathbf{v_8} \end{bmatrix}$$
+```math
+\mathbf{N_{vert}} = \begin{bmatrix} \mathbf{v_1}&\mathbf{v_2}\\ \mathbf{v_1}&\mathbf{v_3}\\ \mathbf{v_1}&\mathbf{v_4}\\ \mathbf{v_2}&\mathbf{v_5}\\ \mathbf{v_2}&\mathbf{v_6}\\ \mathbf{v_3}&\mathbf{v_5}\\ \mathbf{v_3}&\mathbf{v_7}\\ \mathbf{v_4}&\mathbf{v_6}\\ \mathbf{v_4}&\mathbf{v_7}\\ \mathbf{v_5}&\mathbf{v_8}\\ \mathbf{v_6}&\mathbf{v_8}\\ \mathbf{v_7}&\mathbf{v_8} \end{bmatrix}
+```
 
 (Note: In the code, the edge-vertex neighbors variable contains only integer values, which correspond to the indices of the vertices)
 
