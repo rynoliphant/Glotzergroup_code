@@ -7,7 +7,28 @@ First, we need to define our system. For this example, we will have a single cub
 ![zoom_in_set_up](min-dist-figures/zoom_in_set_up.png)
 We will define the vertices of the cube as:
 ```math
-\mathbf{V} = \begin{bmatrix} \mathbf{v_1}\\ \mathbf{v_2}\\ \mathbf{v_3}\\ \mathbf{v_4}\\ \mathbf{v_5}\\ \mathbf{v_6}\\ \mathbf{v_7}\\ \mathbf{v_8} \end{bmatrix} = \begin{bmatrix} 1&1&1\\ -1&1&1\\ 1&-1&1\\ 1&1&-1\\ -1&-1&1\\ -1&1&-1\\ 1&-1&-1\\ -1&-1&-1 \end{bmatrix}
+\mathbf{V} =
+  \begin{bmatrix}
+    \mathbf{v_1}\\
+    \mathbf{v_2}\\
+    \mathbf{v_3}\\
+    \mathbf{v_4}\\
+    \mathbf{v_5}\\
+    \mathbf{v_6}\\
+    \mathbf{v_7}\\
+    \mathbf{v_8}
+  \end{bmatrix}
+=
+  \begin{bmatrix*}[r]
+    1&1&1\\
+    -1&1&1\\
+    1&-1&1\\
+    1&1&-1\\
+    -1&-1&1\\
+    -1&1&-1\\
+    1&-1&-1\\
+    -1&-1&-1
+  \end{bmatrix*}
 ```
 
 The vertices of any shape are user defined. In this example, the vertices are defined with the origin as the center of the cube, but it is not a requirement to have the origin as the center of the shape when defining the vertices.
