@@ -287,56 +287,56 @@ vertices = [
     # [ 0.93743438,  0.54122799,  0.        ]
 
     #Jen Shape 4
-    [-0.15009435, -0.15009435, -0.63580989],
-    [-0.15009435, -0.15009435,  0.63580989],
-    [-0.15009435,  0.15009435, -0.63580989],
-    [-0.15009435,  0.15009435,  0.63580989],
-    [-0.15009435, -0.63580989, -0.15009435],
-    [-0.15009435,  0.63580989, -0.15009435],
-    [ 0.        , -0.39295212, -0.54304647],
-    [ 0.        ,  0.39295212, -0.54304647],
-    [ 0.15009435, -0.15009435, -0.63580989],
-    [ 0.15009435, -0.15009435,  0.63580989],
-    [ 0.15009435,  0.15009435, -0.63580989],
-    [ 0.15009435,  0.15009435,  0.63580989],
-    [ 0.15009435, -0.63580989, -0.15009435],
-    [ 0.15009435,  0.63580989, -0.15009435],
-    [-0.54304647,  0.        , -0.39295212],
-    [-0.54304647,  0.        ,  0.39295212],
-    [-0.24285777, -0.48571553, -0.39295212],
-    [-0.24285777,  0.48571553, -0.39295212],
-    [-0.48571553, -0.39295212, -0.24285777],
-    [-0.48571553, -0.39295212,  0.24285777],
-    [-0.48571553,  0.39295212, -0.24285777],
-    [-0.48571553,  0.39295212,  0.24285777],
-    [-0.63580989, -0.15009435, -0.15009435],
-    [-0.63580989, -0.15009435,  0.15009435],
-    [-0.63580989,  0.15009435, -0.15009435],
-    [-0.63580989,  0.15009435,  0.15009435],
-    [-0.39295212, -0.54304647,  0.        ],
-    [-0.39295212, -0.24285777, -0.48571553],
-    [-0.39295212, -0.24285777,  0.48571553],
-    [-0.39295212,  0.24285777, -0.48571553],
-    [-0.39295212,  0.24285777,  0.48571553],
-    [-0.39295212,  0.54304647,  0.        ],
-    [ 0.24285777, -0.48571553, -0.39295212],
-    [ 0.24285777,  0.48571553, -0.39295212],
-    [ 0.48571553, -0.39295212, -0.24285777],
-    [ 0.48571553, -0.39295212,  0.24285777],
-    [ 0.48571553,  0.39295212, -0.24285777],
-    [ 0.48571553,  0.39295212,  0.24285777],
-    [ 0.63580989, -0.15009435, -0.15009435],
-    [ 0.63580989, -0.15009435,  0.15009435],
-    [ 0.63580989,  0.15009435, -0.15009435],
-    [ 0.63580989,  0.15009435,  0.15009435],
-    [ 0.39295212, -0.54304647,  0.        ],
-    [ 0.39295212, -0.24285777, -0.48571553],
-    [ 0.39295212, -0.24285777,  0.48571553],
-    [ 0.39295212,  0.24285777, -0.48571553],
-    [ 0.39295212,  0.24285777,  0.48571553],
-    [ 0.39295212,  0.54304647,  0.        ],
-    [ 0.54304647,  0.        , -0.39295212],
-    [ 0.54304647,  0.        ,  0.39295212]
+    # [-0.15009435, -0.15009435, -0.63580989],
+    # [-0.15009435, -0.15009435,  0.63580989],
+    # [-0.15009435,  0.15009435, -0.63580989],
+    # [-0.15009435,  0.15009435,  0.63580989],
+    # [-0.15009435, -0.63580989, -0.15009435],
+    # [-0.15009435,  0.63580989, -0.15009435],
+    # [ 0.        , -0.39295212, -0.54304647],
+    # [ 0.        ,  0.39295212, -0.54304647],
+    # [ 0.15009435, -0.15009435, -0.63580989],
+    # [ 0.15009435, -0.15009435,  0.63580989],
+    # [ 0.15009435,  0.15009435, -0.63580989],
+    # [ 0.15009435,  0.15009435,  0.63580989],
+    # [ 0.15009435, -0.63580989, -0.15009435],
+    # [ 0.15009435,  0.63580989, -0.15009435],
+    # [-0.54304647,  0.        , -0.39295212],
+    # [-0.54304647,  0.        ,  0.39295212],
+    # [-0.24285777, -0.48571553, -0.39295212],
+    # [-0.24285777,  0.48571553, -0.39295212],
+    # [-0.48571553, -0.39295212, -0.24285777],
+    # [-0.48571553, -0.39295212,  0.24285777],
+    # [-0.48571553,  0.39295212, -0.24285777],
+    # [-0.48571553,  0.39295212,  0.24285777],
+    # [-0.63580989, -0.15009435, -0.15009435],
+    # [-0.63580989, -0.15009435,  0.15009435],
+    # [-0.63580989,  0.15009435, -0.15009435],
+    # [-0.63580989,  0.15009435,  0.15009435],
+    # [-0.39295212, -0.54304647,  0.        ],
+    # [-0.39295212, -0.24285777, -0.48571553],
+    # [-0.39295212, -0.24285777,  0.48571553],
+    # [-0.39295212,  0.24285777, -0.48571553],
+    # [-0.39295212,  0.24285777,  0.48571553],
+    # [-0.39295212,  0.54304647,  0.        ],
+    # [ 0.24285777, -0.48571553, -0.39295212],
+    # [ 0.24285777,  0.48571553, -0.39295212],
+    # [ 0.48571553, -0.39295212, -0.24285777],
+    # [ 0.48571553, -0.39295212,  0.24285777],
+    # [ 0.48571553,  0.39295212, -0.24285777],
+    # [ 0.48571553,  0.39295212,  0.24285777],
+    # [ 0.63580989, -0.15009435, -0.15009435],
+    # [ 0.63580989, -0.15009435,  0.15009435],
+    # [ 0.63580989,  0.15009435, -0.15009435],
+    # [ 0.63580989,  0.15009435,  0.15009435],
+    # [ 0.39295212, -0.54304647,  0.        ],
+    # [ 0.39295212, -0.24285777, -0.48571553],
+    # [ 0.39295212, -0.24285777,  0.48571553],
+    # [ 0.39295212,  0.24285777, -0.48571553],
+    # [ 0.39295212,  0.24285777,  0.48571553],
+    # [ 0.39295212,  0.54304647,  0.        ],
+    # [ 0.54304647,  0.        , -0.39295212],
+    # [ 0.54304647,  0.        ,  0.39295212]
 
     #Dodecahedron
     # (0.5, 0.5, 0.5),
@@ -375,14 +375,14 @@ vertices = [
     # (0, 0, 0.5),
 
     #Cube
-    # (0.5, 0.5, 0.5),
-    # (-0.5, 0.5, 0.5),
-    # (-0.5, -0.5, 0.5),
-    # (-0.5, 0.5, -0.5),
-    # (0.5, -0.5, 0.5),
-    # (0.5, -0.5, -0.5),
-    # (0.5, 0.5, -0.5),
-    # (-0.5, -0.5, -0.5),
+    (0.5, 0.5, 0.5),
+    (-0.5, 0.5, 0.5),
+    (-0.5, -0.5, 0.5),
+    (-0.5, 0.5, -0.5),
+    (0.5, -0.5, 0.5),
+    (0.5, -0.5, -0.5),
+    (0.5, 0.5, -0.5),
+    (-0.5, -0.5, -0.5),
 ]
 
 orientations = [
@@ -491,7 +491,7 @@ for s, x in enumerate(shape_pos):
                 x0=np.zeros(3),
                 args=(points1[i],),
                 constraints=[LinearConstraint(n[:,:-1], -np.inf, n[:,-1])],
-                tol = 0.0000000001
+                tol = 0.00000001
             )
             if current_min.success == False:
                 print(current_min.message)
@@ -639,15 +639,16 @@ def get_edge_face_neighbors (shape):
 
     list_len = len(faces_flat)
     face_edge_mat = np.block([faces_flat[:-1].reshape(list_len-1,1), faces_flat[1:].reshape(list_len-1,1)])
+
     fe_mat_inds = np.arange(0,list_len-1,1)
     find_num_edges = fe_mat_inds[(fe_mat_inds==0) + (np.any(face_edge_mat==-1, axis=1))]
     find_num_edges[:][0] = -1
     find_num_edges = find_num_edges.reshape(faces_len,2)
     face_num_edges = find_num_edges[:,1] - find_num_edges[:,0] -1
     face_correspond_inds = np.repeat(np.arange(0,faces_len,1), face_num_edges)
-    # print(face_correspond_inds)
+    print(len(face_correspond_inds))
 
-    true_face_edge_mat = np.tile(face_edge_mat[np.all(face_edge_mat!=-1, axis=1)].reshape(num_edges*2,1,2), (1, num_edges,1))
+    # print(true_face_edge_mat)
     # edge_ind_bool0 = np.any(np.all(true_face_edge_mat == shape.edges.reshape(1, num_edges, 2), axis=2), axis=1)
     # ef_sort_bool0 = np.all(true_face_edge_mat == shape.edges.reshape(1, num_edges, 2), axis=2)
     # edges1_reshape = np.hstack(((shape.edges[:,1]).reshape(num_edges,1), (shape.edges[:,0]).reshape(num_edges,1)))
@@ -661,8 +662,12 @@ def get_edge_face_neighbors (shape):
     # print(true_face_edge_mat.shape)
 
     edges1_reshape = np.hstack(((shape.edges[:,1]).reshape(num_edges,1), (shape.edges[:,0]).reshape(num_edges,1)))
-    new_edge_ind_bool0 = np.all(true_face_edge_mat == shape.edges.reshape(1, num_edges, 2), axis=2)
-    new_edge_ind_bool1 = np.all(true_face_edge_mat == edges1_reshape.reshape(1,num_edges,2), axis=2)
+
+    true_face_edge_mat = np.tile(face_edge_mat[np.all(face_edge_mat!=-1, axis=1)].reshape(num_edges*2,1,2), (1, num_edges,1))
+    new_edge_ind_bool0 = np.all(true_face_edge_mat == shape.edges.reshape(1, num_edges, 2), axis=2).astype(int)
+    print(new_edge_ind_bool0)
+    print(new_edge_ind_bool0.shape)
+    new_edge_ind_bool1 = np.all(true_face_edge_mat == edges1_reshape.reshape(1,num_edges,2), axis=2).astype(int)
     new_face_corr_inds = np.tile(face_correspond_inds.reshape(2*num_edges,1), (1,num_edges))
 
 
@@ -848,6 +853,7 @@ def get_face_boundaries (shp_vert, shp_edges, shp_faces, shp_edge_vert, shp_edge
 
     return new_face_constraints, new_face_bounds
 
+print(type(shapes[0]))
 
 bc_start = time.time()
 
@@ -1129,7 +1135,7 @@ for s,x in enumerate(shape_pos):
 
     bc_for_s = time.time()
     image_diff = np.array([[6,0,0], [0,0,0], [-6,0,0]])
-    images_pos = (x+np.array([6,0,0]), x, x+np.array([-6,0,0]))
+    images_pos = image_diff + x + shp.centroid
     img_verts = np.tile(shp_vert.reshape(1, n_verts,3), (3,1,1))
     img_edges = np.tile(shp_edges.reshape(1, n_edges,3), (3,1,1))
     img_faces = np.tile(shp_faces.reshape(1, n_faces,3), (3,1,1))
@@ -1141,28 +1147,32 @@ for s,x in enumerate(shape_pos):
 
         #IMPORTANT: When finding the 8 nearest shapes, find the distance between coord and shape_pos + shape_centroid
 
-        #Building code to do more than one image at once
         coord = points1[coord_i]
+
+        dist_coord_images = np.sqrt(np.sum(((images_pos-coord)**2), axis=1))
+        nearest_images_ind = np.argsort(dist_coord_images)
+        near_img_ind = nearest_images_ind[:2]
+        #Building code to do more than one image at once
         min_dist_list = np.array([])
 
-        vert_bool = np.all(img_vert_bounds >= vert_constraint.dot(coord), axis=2)
+        vert_bool = np.all(img_vert_bounds[near_img_ind] >= vert_constraint.dot(coord), axis=2)
         if np.any(vert_bool):
             vert_bool_img = np.any(vert_bool, axis=1)
-            min_dist = LA.norm(-1*(img_verts[vert_bool] + image_diff[vert_bool_img] + x) + coord, axis=1)
+            min_dist = LA.norm(-1*(img_verts[near_img_ind][vert_bool] + image_diff[near_img_ind][vert_bool_img] + x) + coord, axis=1)
             min_dist_list = np.append(min_dist_list, min_dist)
 
-        edge_bool = np.all(img_edge_bounds >= new_edge_constraint.dot(coord), axis=2)
+        edge_bool = np.all(img_edge_bounds[near_img_ind] >= new_edge_constraint.dot(coord), axis=2)
         if np.any(edge_bool):
             edge_bool_img = np.any(edge_bool, axis=1)
-            vert_on_edge = shp_vert[img_ev_neighbors[edge_bool][:,0]] + x + image_diff[edge_bool_img]
-            min_dist = point_to_edge_distance(coord, vert_on_edge, img_edges[edge_bool], multiple=True)
+            vert_on_edge = shp_vert[img_ev_neighbors[near_img_ind][edge_bool][:,0]] + x + image_diff[near_img_ind][edge_bool_img]
+            min_dist = point_to_edge_distance(coord, vert_on_edge, img_edges[near_img_ind][edge_bool], multiple=True)
             min_dist_list = np.append(min_dist_list, min_dist)
 
-        face_bool = np.all(img_face_bounds >= new_face_constraints.dot(coord), axis=2)
+        face_bool = np.all(img_face_bounds[near_img_ind] >= new_face_constraints.dot(coord), axis=2)
         if np.any(face_bool):
             face_bool_img = np.any(face_bool, axis=1)
-            vert_on_face = img_face_centroids[face_bool] + x + image_diff[face_bool_img] 
-            min_dist = point_to_face_distance(coord, vert_on_face, img_faces[face_bool], multiple=True)
+            vert_on_face = img_face_centroids[near_img_ind][face_bool] + x + image_diff[near_img_ind][face_bool_img] 
+            min_dist = point_to_face_distance(coord, vert_on_face, img_faces[near_img_ind][face_bool], multiple=True)
             min_dist_list = np.append(min_dist_list, min_dist)
 
         if np.any(shp.is_inside(-1*image_diff - x + coord)):
@@ -1228,25 +1238,25 @@ bc_end = time.time()
 
 
 
-print(np.round(r_list, 2))
-# print(np.round(r_list_new, 2))
-# print(np.round(other_r_list, 2))
-print(np.round(bc_r_list, 2))
+# print(np.round(r_list, 2))
+# # print(np.round(r_list_new, 2))
+# # print(np.round(other_r_list, 2))
+# print(np.round(bc_r_list, 2))
 # print('difference',abs(r_list - bc_r_list))
 print('max difference:',np.max(abs(r_list - bc_r_list)))
 print('min difference:',np.min(abs(r_list - bc_r_list)))
 print('mean difference:',np.mean(abs(r_list - bc_r_list)))
 print('std:', np.std(abs(r_list - bc_r_list)))
 
-print('Exactly the Same?', np.all(bc_r_list ==  r_list))
-print('Rounded (0.00000001) the Same?', np.all(np.round(bc_r_list,8) == np.round(r_list,8)))
-print('Rounded (0.0000001) the Same?', np.all(np.round(bc_r_list,7) == np.round(r_list,7)))
-print('Rounded (0.000001) the Same?', np.all(np.round(bc_r_list,6) == np.round(r_list,6)))
-print('Rounded (0.00001) the Same?', np.all(np.round(bc_r_list,5) == np.round(r_list,5)))
-print('Rounded (0.0001) the Same?', np.all(np.round(bc_r_list,4) == np.round(r_list,4)))
-print('Rounded (0.001) the Same?', np.all(np.round(bc_r_list,3) == np.round(r_list,3)))
-print('Rounded (0.01) the Same?', np.all(np.round(bc_r_list,2) == np.round(r_list,2)))
-print('Rounded (0.1) the Same?', np.all(np.round(bc_r_list,1) == np.round(r_list,1)))
+# print('Exactly the Same?', np.all(bc_r_list ==  r_list))
+# print('Rounded (0.00000001) the Same?', np.all(np.round(bc_r_list,8) == np.round(r_list,8)))
+# print('Rounded (0.0000001) the Same?', np.all(np.round(bc_r_list,7) == np.round(r_list,7)))
+# print('Rounded (0.000001) the Same?', np.all(np.round(bc_r_list,6) == np.round(r_list,6)))
+# print('Rounded (0.00001) the Same?', np.all(np.round(bc_r_list,5) == np.round(r_list,5)))
+# print('Rounded (0.0001) the Same?', np.all(np.round(bc_r_list,4) == np.round(r_list,4)))
+# print('Rounded (0.001) the Same?', np.all(np.round(bc_r_list,3) == np.round(r_list,3)))
+# print('Rounded (0.01) the Same?', np.all(np.round(bc_r_list,2) == np.round(r_list,2)))
+# print('Rounded (0.1) the Same?', np.all(np.round(bc_r_list,1) == np.round(r_list,1)))
 
 print('Current', '\033[1m'+str(current_end - current_start)+ '\033[0m')
 # print('New', new_end - new_start)

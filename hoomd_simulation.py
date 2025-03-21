@@ -42,6 +42,21 @@ shape_vertices = {'cube': [
     [0.5, -0.5, -0.5],
     [0.5, 0.5, -0.5],
     [-0.5, -0.5, -0.5],
+], 'square':[
+    [0.5, 0.5],
+    [-0.5, 0.5],
+    [-0.5, -0.5],
+    [0.5, -0.5],
+], 'triangle':[
+    [0, 0.5],
+    [-0.25*np.sqrt(3), -0.25],
+    [0.25*np.sqrt(3), -0.25],
+], 'pentagon':[
+    [0.5*np.cos(-0.9424777961), 0.5*np.sin(-0.9424777961)],
+    [0.5*np.cos(0.3141592654), 0.5*np.sin(0.3141592654)],
+    [0.0, 0.5],
+    [-0.5*np.cos(0.3141592654), 0.5*np.sin(0.3141592654)],
+    [-0.5*np.cos(-0.9424777961), 0.5*np.sin(-0.9424777961)],
 ], 'octahedron': [
     [-0.5, 0, 0],
     [0.5, 0, 0],
@@ -55,12 +70,35 @@ shape_vertices = {'cube': [
     [0.5*np.sqrt(3/2), -0.3535, -0.5],
     [-0.5*np.sqrt(3/2), -0.3535, -0.5],
 ], 'dodecahedron': [
-
+    [0.5, 0.5, 0.5],
+    [-0.5, 0.5, 0.5],
+    [-0.5, -0.5, 0.5],
+    [-0.5, 0.5, -0.5],
+    [0.5, -0.5, 0.5],
+    [0.5, -0.5, -0.5],
+    [0.5, 0.5, -0.5],
+    [-0.5, -0.5, -0.5],
+    [0, 0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5)],
+    [0, -0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5)],
+    [0, 0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5)],
+    [0, -0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5)],
+    [0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5), 0],
+    [-0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5), 0],
+    [0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5), 0],
+    [-0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5), 0],
+    [0.5*((1+np.sqrt(5))*0.5), 0, 0.5/((1+np.sqrt(5))*0.5)],
+    [-0.5*((1+np.sqrt(5))*0.5), 0, 0.5/((1+np.sqrt(5))*0.5)],
+    [0.5*((1+np.sqrt(5))*0.5), 0, -0.5/((1+np.sqrt(5))*0.5)],
+    [-0.5*((1+np.sqrt(5))*0.5), 0, -0.5/((1+np.sqrt(5))*0.5)],
 ]}
 
 a_values = {'cube': 1,
+            'square': 1,
+            'triangle': 0.5*np.sqrt(3),
+            'pentagon': np.sin(np.pi/5),
             'octahedron': np.sqrt(2) * 0.5,
-            'tetrahedron': np.sqrt(3/2)
+            'tetrahedron': np.sqrt(3/2),
+            'dodecahedron': np.sqrt(0.75)/(0.5*(0.5*(1+np.sqrt(5)))*np.sqrt(3))
 }
 
 #----- Inputs -----
@@ -69,11 +107,12 @@ inputs = sys.argv
 #file.py | filename | density | N_particles | spacing | shape_name_1 | size_mult_1 | ratio | shape_name_2 | size_mult_2 |
 
 filename = ''
-density = 0.42
+density = 0.75
 m = 2
 N_particles = 2*m**3
-spacing = 1.5
-shape_names = ['tetrahedron']
+spacing = 3
+shape_names = ['pentagon']
+twoD_bool = True
 size_mult = [1]
 ratio = 1
 
@@ -142,21 +181,35 @@ if len(size_mult) > 1:
             a_values[shape_names[1]] = size_mult[1] * old_a_2
 
 shape_volumes = {'cube': a_values['cube']**3, 
+                 'square': a_values['square']**2,
+                 'triangle': (np.sqrt(3)/4)*a_values['triangle']**2,
+                 'pentagon': 0.25*np.sqrt(5*(5+2*np.sqrt(5))) * a_values['pentagon']**2,
                  'octahedron': 1/3 * np.sqrt(2) * a_values['octahedron']**3,
-                 'tetrahedron': a_values['tetrahedron']**3 / (6*np.sqrt(2))
+                 'tetrahedron': a_values['tetrahedron']**3 / (6*np.sqrt(2)),
+                 'dodecahedron': (a_values['dodecahedron']**3)*(5*((1+np.sqrt(5))/2)**3)/(6-2*((1+np.sqrt(5))/2))
 }
 
 shape_surface_area = {'cube': 6*a_values['cube']**2,
+                      'square': a_values['square']**2,
+                      'triangle': (np.sqrt(3)/4)*a_values['triangle']**2,
+                      'pentagon': 0.25*np.sqrt(5*(5+2*np.sqrt(5))) * a_values['pentagon']**2,
                       'octahedron': 2*np.sqrt(3) * a_values['octahedron']**2,
-                      'tetrahedron': np.sqrt(3) * a_values['tetrahedron']**2
+                      'tetrahedron': np.sqrt(3) * a_values['tetrahedron']**2,
+                      'dodecahedron': (a_values['dodecahedron']**2) * (15*(0.5*(1+np.sqrt(5))))/(np.sqrt(3 - (0.5*(1+np.sqrt(5)))))
 }
 
 #----- Integrator + Initial State -----
-mc = hoomd.hpmc.integrate.ConvexPolyhedron()
+if twoD_bool ==  True:
+    mc = hoomd.hpmc.integrate.ConvexPolygon()
+else:
+    mc = hoomd.hpmc.integrate.ConvexPolyhedron()
 mc.nselect = 2
 cpu = hoomd.device.CPU()
 
-K = math.ceil(N_particles**(1/3))
+if twoD_bool == True:
+    K = math.ceil(N_particles**(1/2))
+else:
+    K = math.ceil(N_particles**(1/3))
 L = K*spacing
 x = np.linspace(-L/2, L/2, K, endpoint=False)
 
@@ -166,8 +219,14 @@ if len(shape_names) == 1:
     mc.d[shape_names[0]] = shape_d
     mc.a[shape_names[0]] = shape_a
 
-    shape_position = list(itertools.product(x, repeat=3))
-    shape_position = shape_position[0:N_particles]
+    if twoD_bool == True:
+        shape_position = list(itertools.product(x, repeat=2))
+        shape_position = shape_position[0:N_particles]
+        shape_position = np.append(shape_position, np.zeros((N_particles, 1)), axis=1)
+
+    else:
+        shape_position = list(itertools.product(x, repeat=3))
+        shape_position = shape_position[0:N_particles]
 
     shape_orientation = [(1,0,0,0)] * N_particles
 
@@ -177,8 +236,12 @@ if len(shape_names) == 1:
     frame. particles.orientation = shape_orientation
     frame.particles.typeid = [0] * N_particles
     frame.particles.types = shape_names
-    frame.particles.type_shapes = [dict(type = "ConvexPolyhedron", rounding_radius = 0.01, vertices = vertices_1)]
-    frame.configuration.box = [L,L,L,0,0,0]
+    if twoD_bool == True:
+        frame.particles.type_shapes = [dict(type = 'ConvexPolygon', rounding_radius = 0.01, vertices = vertices_1)]
+        frame.configuration.box = [L,L,0,0,0,0]
+    else:
+        frame.particles.type_shapes = [dict(type = "ConvexPolyhedron", rounding_radius = 0.01, vertices = vertices_1)]
+        frame.configuration.box = [L,L,L,0,0,0]
 
 else:
     N_1 = int(N_particles*ratio)
@@ -219,7 +282,7 @@ simulation = hoomd.Simulation(device=cpu, seed=seed)
 simulation.operations.integrator = mc
 simulation.create_state_from_gsd(filename='initial_state_'+filename)
 
-gsd_writer = hoomd.write.GSD(filename=filename, trigger=hoomd.trigger.Periodic(1000), mode='xb')
+gsd_writer = hoomd.write.GSD(filename=filename, trigger=hoomd.trigger.Periodic(1000), mode='xb', dynamic=['property','attribute','particles/type_shapes'])
 simulation.operations.writers.append(gsd_writer)
 
 #----- Randomizing -----

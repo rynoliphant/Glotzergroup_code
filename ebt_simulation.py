@@ -6,10 +6,59 @@ import gsd
 import gsd.hoomd
 import numpy as np
 
-filename = 'compress_test.gsd'
+filename = 'hello.gsd'
 frame = -10
 
 cube_vertices = [
+    #square
+    # [0.5, 0.5],
+    # [-0.5, 0.5],
+    # [-0.5, -0.5],
+    # [0.5, -0.5],
+
+    #triangle
+    # [0, 0.5],
+    # [-0.25*np.sqrt(3), -0.25],
+    # [0.25*np.sqrt(3), -0.25],
+
+    #pentagon
+    # [0.5*np.cos(-0.9424777961), 0.5*np.sin(-0.9424777961)],
+    # [0.5*np.cos(0.3141592654), 0.5*np.sin(0.3141592654)],
+    # [0.0, 0.5],
+    # [-0.5*np.cos(0.3141592654), 0.5*np.sin(0.3141592654)],
+    # [-0.5*np.cos(-0.9424777961), 0.5*np.sin(-0.9424777961)],
+
+    #cube
+    # [-0.5, 0, 0],
+    # [0.5, 0, 0],
+    # [0, -0.5, 0],
+    # [0, 0.5, 0],
+    # [0, 0, -0.5],
+    # [0, 0, 0.5],
+
+    #dodecahedron
+    # [0.5, 0.5, 0.5],
+    # [-0.5, 0.5, 0.5],
+    # [-0.5, -0.5, 0.5],
+    # [-0.5, 0.5, -0.5],
+    # [0.5, -0.5, 0.5],
+    # [0.5, -0.5, -0.5],
+    # [0.5, 0.5, -0.5],
+    # [-0.5, -0.5, -0.5],
+    # [0, 0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5)],
+    # [0, -0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5)],
+    # [0, 0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5)],
+    # [0, -0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5)],
+    # [0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5), 0],
+    # [-0.5/((1+np.sqrt(5))*0.5), 0.5*((1+np.sqrt(5))*0.5), 0],
+    # [0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5), 0],
+    # [-0.5/((1+np.sqrt(5))*0.5), -0.5*((1+np.sqrt(5))*0.5), 0],
+    # [0.5*((1+np.sqrt(5))*0.5), 0, 0.5/((1+np.sqrt(5))*0.5)],
+    # [-0.5*((1+np.sqrt(5))*0.5), 0, 0.5/((1+np.sqrt(5))*0.5)],
+    # [0.5*((1+np.sqrt(5))*0.5), 0, -0.5/((1+np.sqrt(5))*0.5)],
+    # [-0.5*((1+np.sqrt(5))*0.5), 0, -0.5/((1+np.sqrt(5))*0.5)],
+
+    #octahedron
     (0.5, 0.5, 0.5),
     (-0.5, 0.5, 0.5),
     (-0.5, -0.5, 0.5),
@@ -46,10 +95,24 @@ system.particles.position
 
 system.validate
 
-solver = ebonds.solvers.Solver(system, phi_inp=0.6, grid_spacing=0.2)
-solver.solve(mu=3, rshift=0.3, cpu_cores=3)
+
+solver = ebonds.solvers.Solver(system, phi_inp=0.6, grid_spacing=0.2, sphere_q=False)
+
+box = system.configuration.box
+class var:
+    def __init__(self, box):
+        self.a = 0.5*box.a
+        self.b = 0.5*box.b
+        self.c = 0.5*box.c
+        self.Lx = 0.5*box.Lx
+        self.Ly = 0.5*box.Ly
+        self.Lz = 0.5*box.Lz
+
+#small_box.a, small_box.b, small_box.c, small_box.Lx, small_box.Ly, small_box.Lz
+
+solver.solve(mu=3, rshift=0.3, r_exponent=2, cpu_cores=3, small_system_q = False, small_box = var(box))
 energy = solver.energy
-print(energy)
+print('Energy:',energy)
 #----- Define System -----
 #sys_n (system name?)
 #a
